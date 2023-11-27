@@ -12,7 +12,7 @@
 	<artifactId>article_generator</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
 	<name>article_generator</name>
-	<description>Demo project for Spring Boot</description>
+	<description>Generator for writing articles</description>
 	<properties>
 		<java.version>17</java.version>
 	</properties>
