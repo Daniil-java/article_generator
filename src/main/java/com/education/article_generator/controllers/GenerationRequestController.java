@@ -14,8 +14,8 @@ public class GenerationRequestController {
 
     private final GenerationRequestService generationRequestService;
 
-    @GetMapping("/getRequest")
-    public List<GenerationRequest> getAllRequests(@RequestBody String category) {
+    @GetMapping("/all")
+    public List<GenerationRequest> getAllRequests() {
         return generationRequestService.getAllRequests();
     }
 }

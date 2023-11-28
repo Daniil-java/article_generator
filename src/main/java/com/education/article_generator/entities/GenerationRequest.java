@@ -1,6 +1,7 @@
 package com.education.article_generator.entities;
 
 import jakarta.persistence.*;
+import lombok.Data;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -10,8 +11,7 @@ import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "generation_request")
-@Getter
-@Setter
+@Data
 @NoArgsConstructor
 public class GenerationRequest {
 
@@ -22,6 +22,6 @@ public class GenerationRequest {
 
     @Column(name = "created_at")
     @CreationTimestamp
-    private LocalDateTime createdAt;
+    private LocalDateTime created;
 
 }
