@@ -1,0 +1,17 @@
+package com.education.article_generator.services;
+
+import com.education.article_generator.entities.Article;
+import com.education.article_generator.repositories.ArticleRepository;
+import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Service;
+
+import java.util.List;
+
+@Service
+@RequiredArgsConstructor
+public class ArticleService {
+    private final ArticleRepository articleRepository;
+    public List<Article> getAll() {
+        return articleRepository.findAll();
+    }
+}
