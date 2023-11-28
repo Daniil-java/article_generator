@@ -20,6 +20,10 @@ public class ArticleTopic {
     @Column(name = "topic_title")
     private String topicTitle;
 
+    @OneToOne
+    @JoinColumn(name = "article_id")
+    private Article article;
+
     @Column(name = "created")
     @CreationTimestamp
     private LocalDateTime created;

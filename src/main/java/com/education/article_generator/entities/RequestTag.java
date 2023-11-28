@@ -21,6 +21,10 @@ public class RequestTag {
     @JoinColumn(name = "generation_request_id")
     private GenerationRequest generationRequest;
 
+    @OneToOne
+    @JoinColumn(name = "topic_id")
+    private ArticleTopic articleTopic;
+
     @Column(name = "created")
     @CreationTimestamp
     private LocalDateTime created;

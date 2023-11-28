@@ -17,10 +17,6 @@ public class Article {
     @Column(name = "id")
     private Long id;
 
-    @ManyToOne
-    @JoinColumn(name = "article_topic_id")
-    private ArticleTopic articleTopic;
-
     @Column(name = "article_body")
     private String articleBody;
 
