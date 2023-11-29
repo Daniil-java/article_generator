@@ -1,5 +1,6 @@
 package com.education.articlegenerator.entities;
 
+import com.fasterxml.jackson.annotation.*;
 import jakarta.persistence.*;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -12,6 +13,10 @@ import java.util.List;
 @Table(name = "article_topics")
 @Data
 @NoArgsConstructor
+
+@JsonIdentityInfo(
+        generator = ObjectIdGenerators.PropertyGenerator.class,
+        property = "id")
 public class ArticleTopic {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -21,8 +26,11 @@ public class ArticleTopic {
     @Column(name = "topic_title")
     private String topicTitle;
 
+    @OneToMany(cascade = CascadeType.ALL)
+    @JoinColumn(name = "article_topic_id")
+    private List<Article> articles;
+
     @ManyToOne
-    @JoinColumn(name = "generation_request_id")
     private GenerationRequest generationRequest;
 
     @Column(name = "created")

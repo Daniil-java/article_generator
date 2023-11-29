@@ -1,5 +1,8 @@
 package com.education.articlegenerator.entities;
 
+
+import com.fasterxml.jackson.annotation.JsonIdentityInfo;
+import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 import jakarta.persistence.*;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -11,6 +14,9 @@ import java.time.LocalDateTime;
 @Table(name = "articles")
 @Data
 @NoArgsConstructor
+@JsonIdentityInfo(
+        generator = ObjectIdGenerators.PropertyGenerator.class,
+        property = "id")
 public class Article {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -18,7 +24,6 @@ public class Article {
     private Long id;
 
     @ManyToOne
-    @JoinColumn(name = "article_topic_id")
     private ArticleTopic articleTopic;
 
     @Column(name = "article_body")
