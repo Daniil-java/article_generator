@@ -1,7 +1,7 @@
-package com.education.article_generator.services;
+package com.education.articlegenerator.services;
 
-import com.education.article_generator.entities.ArticleTopic;
-import com.education.article_generator.repositories.ArticleTopicRepository;
+import com.education.articlegenerator.entities.ArticleTopic;
+import com.education.articlegenerator.repositories.ArticleTopicRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 

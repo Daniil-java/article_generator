@@ -1,4 +1,4 @@
-package com.education.article_generator.entities;
+package com.education.articlegenerator.entities;
 
 import jakarta.persistence.*;
 import lombok.*;
@@ -20,9 +20,6 @@ public class GenerationRequest {
 
     @Column(name = "request_tags")
     private String requestTags;
-
-    @OneToMany(mappedBy = "generationRequestId", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
-    private List<ArticleTopic> articleTopics;
 
     @Column(name = "created")
     @CreationTimestamp

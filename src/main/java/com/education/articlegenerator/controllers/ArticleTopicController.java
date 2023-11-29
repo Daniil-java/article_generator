@@ -1,7 +1,7 @@
-package com.education.article_generator.controllers;
+package com.education.articlegenerator.controllers;
 
-import com.education.article_generator.entities.ArticleTopic;
-import com.education.article_generator.services.ArticleTopicService;
+import com.education.articlegenerator.entities.ArticleTopic;
+import com.education.articlegenerator.services.ArticleTopicService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;

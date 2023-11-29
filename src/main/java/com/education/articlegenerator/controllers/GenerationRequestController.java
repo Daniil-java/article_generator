@@ -1,7 +1,7 @@
-package com.education.article_generator.controllers;
+package com.education.articlegenerator.controllers;
 
-import com.education.article_generator.entities.GenerationRequest;
-import com.education.article_generator.services.GenerationRequestService;
+import com.education.articlegenerator.entities.GenerationRequest;
+import com.education.articlegenerator.services.GenerationRequestService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 

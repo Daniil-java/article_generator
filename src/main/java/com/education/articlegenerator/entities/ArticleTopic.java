@@ -1,4 +1,4 @@
-package com.education.article_generator.entities;
+package com.education.articlegenerator.entities;
 
 import jakarta.persistence.*;
 import lombok.Data;
@@ -23,10 +23,7 @@ public class ArticleTopic {
 
     @ManyToOne
     @JoinColumn(name = "generation_request_id")
-    private GenerationRequest generationRequestId;
-
-    @OneToMany(mappedBy = "articleTopicId", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
-    private List<Article> articles;
+    private GenerationRequest generationRequest;
 
     @Column(name = "created")
     @CreationTimestamp

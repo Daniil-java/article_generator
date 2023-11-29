@@ -1,4 +1,4 @@
-package com.education.article_generator.entities;
+package com.education.articlegenerator.entities;
 
 import jakarta.persistence.*;
 import lombok.Data;
@@ -8,22 +8,21 @@ import org.hibernate.annotations.CreationTimestamp;
 import java.time.LocalDateTime;
 
 @Entity
-@Table(name = "request_tags")
+@Table(name = "articles")
 @Data
 @NoArgsConstructor
-public class RequestTag {
+public class Article {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id")
     private Long id;
 
-    @OneToOne
-    @JoinColumn(name = "generation_request_id")
-    private GenerationRequest generationRequest;
-
-    @OneToOne
-    @JoinColumn(name = "topic_id")
+    @ManyToOne
+    @JoinColumn(name = "article_topic_id")
     private ArticleTopic articleTopic;
+
+    @Column(name = "article_body")
+    private String articleBody;
 
     @Column(name = "created")
     @CreationTimestamp
