@@ -1,13 +1,11 @@
 package com.education.article_generator.entities;
 
 import jakarta.persistence.*;
-import lombok.Data;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Entity
 @Table(name = "generation_request")
@@ -19,6 +17,12 @@ public class GenerationRequest {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id")
     private Long id;
+
+    @Column(name = "request_tags")
+    private String requestTags;
+
+    @OneToMany(mappedBy = "generationRequestId", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+    private List<ArticleTopic> articleTopics;
 
     @Column(name = "created")
     @CreationTimestamp

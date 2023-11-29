@@ -6,6 +6,7 @@ import lombok.NoArgsConstructor;
 import org.hibernate.annotations.CreationTimestamp;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Entity
 @Table(name = "article_topics")
@@ -20,9 +21,12 @@ public class ArticleTopic {
     @Column(name = "topic_title")
     private String topicTitle;
 
-    @OneToOne
-    @JoinColumn(name = "article_id")
-    private Article article;
+    @ManyToOne
+    @JoinColumn(name = "generation_request_id")
+    private GenerationRequest generationRequestId;
+
+    @OneToMany(mappedBy = "articleTopicId", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+    private List<Article> articles;
 
     @Column(name = "created")
     @CreationTimestamp
