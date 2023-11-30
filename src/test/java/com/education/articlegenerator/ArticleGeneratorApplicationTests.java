@@ -1,4 +1,4 @@
-package com.education.article_generator;
+package com.education.articlegenerator;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
