@@ -18,6 +18,15 @@ import java.time.LocalDateTime;
         generator = ObjectIdGenerators.PropertyGenerator.class,
         property = "id")
 public class Article {
+    public Article(ArticleTopic articleTopic, String articleBody) {
+        this.articleTopic = articleTopic;
+        this.articleBody = articleBody;
+    }
+
+    public Article(String articleBody) {
+        this.articleBody = articleBody;
+    }
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id")

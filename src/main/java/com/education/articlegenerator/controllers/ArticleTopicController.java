@@ -3,14 +3,12 @@ package com.education.articlegenerator.controllers;
 import com.education.articlegenerator.entities.ArticleTopic;
 import com.education.articlegenerator.services.ArticleTopicService;
 import lombok.RequiredArgsConstructor;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/v1/articletopic")
+@RequestMapping("/api/v1/topics")
 @RequiredArgsConstructor
 public class ArticleTopicController {
     private final ArticleTopicService articleTopicService;
@@ -18,5 +16,11 @@ public class ArticleTopicController {
     @GetMapping("/all")
     public List<ArticleTopic> getAll() {
         return articleTopicService.getAll();
+    }
+
+    @GetMapping
+//    @ResponseBody
+    public List<ArticleTopic> getTopics(@RequestParam Long requestId) {
+        return articleTopicService.getTopicsByRequestId(requestId);
     }
 }

@@ -18,6 +18,11 @@ import java.util.List;
         generator = ObjectIdGenerators.PropertyGenerator.class,
         property = "id")
 public class ArticleTopic {
+    public ArticleTopic(String topicTitle, GenerationRequest generationRequest) {
+        this.topicTitle = topicTitle;
+        this.generationRequest = generationRequest;
+    }
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id")

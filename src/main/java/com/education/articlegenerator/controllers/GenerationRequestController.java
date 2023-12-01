@@ -8,14 +8,19 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/v1/generationrequest")
+@RequestMapping("/api/v1/requests")
 @RequiredArgsConstructor
 public class GenerationRequestController {
 
     private final GenerationRequestService generationRequestService;
-
     @GetMapping("/all")
     public List<GenerationRequest> getAllRequests() {
         return generationRequestService.getAllRequests();
     }
+
+    @PostMapping("/")
+    public GenerationRequest createRequest(@RequestBody GenerationRequest request) {
+        return generationRequestService.createRequest(request);
+    }
+
 }
