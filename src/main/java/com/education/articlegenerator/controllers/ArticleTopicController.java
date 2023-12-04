@@ -8,7 +8,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/v1/topics")
+@RequestMapping("/api/v1/topic")
 @RequiredArgsConstructor
 public class ArticleTopicController {
     private final ArticleTopicService articleTopicService;
@@ -19,7 +19,6 @@ public class ArticleTopicController {
     }
 
     @GetMapping
-//    @ResponseBody
     public List<ArticleTopic> getTopics(@RequestParam Long requestId) {
         return articleTopicService.getTopicsByRequestId(requestId);
     }

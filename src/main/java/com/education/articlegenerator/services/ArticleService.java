@@ -30,7 +30,7 @@ public class ArticleService {
             if (list.isPresent() && !list.get().isEmpty()) {
                 articleList.addAll(list.get());
             } else {
-                articleList.addAll(toGenerateArticle(id));
+                articleList.addAll(generateArticle(id));
             }
         }
         if (!articleList.isEmpty()) {
@@ -40,13 +40,15 @@ public class ArticleService {
         }
     }
 
-    private List<Article> toGenerateArticle(Long id) {
+    private List<Article> generateArticle(Long id) {
         List<Article> articleResultList = new ArrayList<>();
-        ArticleTopic articleTopic = articleTopicService.getTopicsById(id);
-        String articles = openAiApiService.getArticle(articleTopic.getTopicTitle());
-        List<String> tagsList = Arrays.asList(articles.split(";"));
-        for (String s : tagsList) {
-            articleResultList.add(articleRepository.save(new Article(articleTopic, s)));
+        ArticleTopic articleTopic = articleTopicService.getTopicById(id);
+        List<String> articles = openAiApiService.generateArticle(articleTopic.getTopicTitle());
+        for (String article : articles) {
+            articleResultList.add(articleRepository.save(new Article()
+                    .setArticleTopic(articleTopic)
+                    .setArticleBody(article)
+            ));
         }
         return articleResultList;
     }

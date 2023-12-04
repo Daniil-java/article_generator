@@ -7,7 +7,7 @@ import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
-import java.util.Arrays;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -24,7 +24,6 @@ public class ArticleTopicService {
 
     @Transactional
     public List<ArticleTopic> getTopicsByRequestId(Long requestId) {
-        //TODO Optional обработчик
         Optional<List<ArticleTopic>> topicsList = articleTopicRepository.findArticleTopicByGenerationRequestId(requestId);
         if (topicsList.isPresent() && !topicsList.get().isEmpty()) {
             return topicsList.get();
@@ -36,25 +35,20 @@ public class ArticleTopicService {
 
     private List<ArticleTopic> toGenerateTopic(Long requestId) {
         GenerationRequest request = generationRequestService.getRequestById(requestId);
-        String tags = openAiApiService.getTopics(request.getRequestTags());
-        List<String> tagsList = Arrays.asList(tags.split(", "));
-        for (String s : tagsList) {
-            articleTopicRepository.save(new ArticleTopic(s, request));
+        List<String> tagsList = openAiApiService.generateTopics(request.getRequestTags());
+        List<ArticleTopic> topicList = new ArrayList<>();
+        for (String tag : tagsList) {
+            topicList.add(articleTopicRepository.save(new ArticleTopic()
+                    .setTopicTitle(tag)
+                    .setGenerationRequest(request)));
         }
-        Optional<List<ArticleTopic>> topicsList = articleTopicRepository.findArticleTopicByGenerationRequestId(requestId);
-        if (topicsList.isPresent()) {
-            return topicsList.get();
-        } else {
-            throw new RuntimeException("TopicGenerateError. ArticleTopicService.toGenerate(" + requestId + ")");
-        }
+        return topicList;
     }
 
-    public ArticleTopic getTopicsById(Long id) {
-        Optional<ArticleTopic> articleTopic = articleTopicRepository.findById(id);
-        if (articleTopic.isPresent()) {
-            return articleTopic.get();
-        } else {
-            throw new RuntimeException("Topic is not exist!. ArticleTopicService.getTopicsById(" + id + ")");
-        }
+    public ArticleTopic getTopicById(Long id) {
+        return articleTopicRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException(
+                        "Topic is not exist!. ArticleTopicService.getTopicsById(" + id + ")"
+                ));
     }
 }

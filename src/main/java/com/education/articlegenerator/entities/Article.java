@@ -6,6 +6,7 @@ import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 import jakarta.persistence.*;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import lombok.experimental.Accessors;
 import org.hibernate.annotations.CreationTimestamp;
 
 import java.time.LocalDateTime;
@@ -17,16 +18,8 @@ import java.time.LocalDateTime;
 @JsonIdentityInfo(
         generator = ObjectIdGenerators.PropertyGenerator.class,
         property = "id")
+@Accessors(chain = true)
 public class Article {
-    public Article(ArticleTopic articleTopic, String articleBody) {
-        this.articleTopic = articleTopic;
-        this.articleBody = articleBody;
-    }
-
-    public Article(String articleBody) {
-        this.articleBody = articleBody;
-    }
-
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id")
