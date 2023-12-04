@@ -13,9 +13,14 @@ import java.util.List;
 public class GenerationRequestController {
 
     private final GenerationRequestService generationRequestService;
-
     @GetMapping("/all")
     public List<GenerationRequest> getAllRequests() {
         return generationRequestService.getAllRequests();
     }
+
+    @PostMapping("/")
+    public GenerationRequest createRequest(@RequestBody GenerationRequest request) {
+        return generationRequestService.createRequest(request);
+    }
+
 }
