@@ -2,7 +2,6 @@ package com.education.articlegenerator.controllers;
 
 import com.education.articlegenerator.entities.ArticleTopic;
 import com.education.articlegenerator.services.ArticleTopicService;
-import com.education.articlegenerator.services.OpenAiApiService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
