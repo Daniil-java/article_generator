@@ -11,7 +11,6 @@ import java.util.List;
 @RequestMapping("/api/v1/generationrequest")
 @RequiredArgsConstructor
 public class GenerationRequestController {
-
     private final GenerationRequestService generationRequestService;
     @GetMapping("/all")
     public List<GenerationRequest> getAllRequests() {
@@ -22,5 +21,4 @@ public class GenerationRequestController {
     public GenerationRequest createRequest(@RequestBody GenerationRequest request) {
         return generationRequestService.createRequest(request);
     }
-
 }
