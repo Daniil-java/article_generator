@@ -9,7 +9,7 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 public class IntegrationServiceProperties {
     @Value("5000")
     private Integer connectTimeout;
-    @Value("100000")
+    @Value("1000000")
     private Integer readTimeout;
     @Value("5000")
     private Integer writeTimeout;
