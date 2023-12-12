@@ -17,6 +17,7 @@ public class ArticleTopicService {
     private final ArticleTopicRepository articleTopicRepository;
     private final GenerationRequestService generationRequestService;
     private final OpenAiApiService openAiApiService;
+    private final OpenAiApiFeignService openAiApiFeignService;
 
     public List<ArticleTopic> getAll() {
         return articleTopicRepository.findAll();
@@ -35,7 +36,8 @@ public class ArticleTopicService {
 
     private List<ArticleTopic> toGenerateTopic(Long requestId) {
         GenerationRequest request = generationRequestService.getRequestById(requestId);
-        List<ArticleTopic> topicList = openAiApiService.generateTopics(request.getRequestTags());
+//        List<ArticleTopic> topicList = openAiApiService.generateTopics(request.getRequestTags());
+        List<ArticleTopic> topicList = openAiApiFeignService.generateTopics(request.getRequestTags());
         List<ArticleTopic> resultList = new ArrayList<>();
         for (ArticleTopic articleTopic : topicList) {
             resultList.add(articleTopicRepository.save(articleTopic.setGenerationRequest(request)));
