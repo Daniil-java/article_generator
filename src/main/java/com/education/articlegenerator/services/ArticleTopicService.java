@@ -35,14 +35,12 @@ public class ArticleTopicService {
 
     private List<ArticleTopic> toGenerateTopic(Long requestId) {
         GenerationRequest request = generationRequestService.getRequestById(requestId);
-        List<String> tagsList = openAiApiService.generateTopics(request.getRequestTags());
-        List<ArticleTopic> topicList = new ArrayList<>();
-        for (String tag : tagsList) {
-            topicList.add(articleTopicRepository.save(new ArticleTopic()
-                    .setTopicTitle(tag)
-                    .setGenerationRequest(request)));
+        List<ArticleTopic> topicList = openAiApiService.generateTopics(request.getRequestTags());
+        List<ArticleTopic> resultList = new ArrayList<>();
+        for (ArticleTopic articleTopic : topicList) {
+            resultList.add(articleTopicRepository.save(articleTopic.setGenerationRequest(request)));
         }
-        return topicList;
+        return resultList;
     }
 
     public ArticleTopic getTopicById(Long id) {

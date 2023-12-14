@@ -10,4 +10,5 @@ import java.util.List;
 public class OpenAiChatCompletionRequest {
     private String model;
     private List<Message> messages;
+    private float temperature;
 }

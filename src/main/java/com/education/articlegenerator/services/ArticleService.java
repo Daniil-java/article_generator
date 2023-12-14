@@ -42,11 +42,10 @@ public class ArticleService {
     private List<Article> generateArticle(Long id) {
         List<Article> articleResultList = new ArrayList<>();
         ArticleTopic articleTopic = articleTopicService.getTopicById(id);
-        List<String> articles = openAiApiService.generateArticle(articleTopic.getTopicTitle());
-        for (String article : articles) {
-            articleResultList.add(articleRepository.save(new Article()
+        List<Article> articles = openAiApiService.generateArticle(articleTopic.getTopicTitle());
+        for (Article article : articles) {
+            articleResultList.add(articleRepository.save(article
                     .setArticleTopic(articleTopic)
-                    .setArticleBody(article)
             ));
         }
         return articleResultList;
