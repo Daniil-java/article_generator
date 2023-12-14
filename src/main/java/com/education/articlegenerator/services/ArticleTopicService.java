@@ -1,5 +1,6 @@
 package com.education.articlegenerator.services;
 
+import com.education.articlegenerator.dtos.ArticleTopicDto;
 import com.education.articlegenerator.entities.ArticleTopic;
 import com.education.articlegenerator.entities.GenerationRequest;
 import com.education.articlegenerator.repositories.ArticleTopicRepository;
@@ -36,11 +37,14 @@ public class ArticleTopicService {
 
     private List<ArticleTopic> toGenerateTopic(Long requestId) {
         GenerationRequest request = generationRequestService.getRequestById(requestId);
-//        List<ArticleTopic> topicList = openAiApiService.generateTopics(request.getRequestTags());
-        List<ArticleTopic> topicList = openAiApiFeignService.generateTopics(request.getRequestTags());
+//        List<ArticleTopicDto> topicList = openAiApiService.generateTopics(request.getRequestTags());
+        List<ArticleTopicDto> topicList = openAiApiFeignService.generateTopics(request.getRequestTags());
         List<ArticleTopic> resultList = new ArrayList<>();
-        for (ArticleTopic articleTopic : topicList) {
-            resultList.add(articleTopicRepository.save(articleTopic.setGenerationRequest(request)));
+        for (ArticleTopicDto articleTopic : topicList) {
+            resultList.add(articleTopicRepository.save(new ArticleTopic()
+                    .setTopicTitle(articleTopic.getTopicTitle())
+                    .setGenerationRequest(request))
+            );
         }
         return resultList;
     }

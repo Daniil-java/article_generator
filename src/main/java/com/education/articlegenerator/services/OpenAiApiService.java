@@ -3,8 +3,8 @@ package com.education.articlegenerator.services;
 import com.education.articlegenerator.dto.openai.Message;
 import com.education.articlegenerator.dto.openai.OpenAiChatCompletionRequest;
 import com.education.articlegenerator.dto.openai.OpenAiChatCompletionResponse;
-import com.education.articlegenerator.entities.Article;
-import com.education.articlegenerator.entities.ArticleTopic;
+import com.education.articlegenerator.dtos.ArticleDto;
+import com.education.articlegenerator.dtos.ArticleTopicDto;
 import com.education.articlegenerator.entities.OpenAiKey;
 import com.education.articlegenerator.properties.IntegrationServiceProperties;
 import com.education.articlegenerator.repositories.OpenAiApiRepository;
@@ -40,7 +40,7 @@ public class OpenAiApiService {
     @Value("https://api.openai.com/v1/")
     private String openAiUrl;
 
-    public List<ArticleTopic> generateTopics(String tags) {
+    public List<ArticleTopicDto> generateTopics(String tags) {
 
         String filter = String.format(
                 "Это поле/тема или список тегов: %s. Необходимо создать 10 заголовков. " +
@@ -51,33 +51,29 @@ public class OpenAiApiService {
 
         OpenAiChatCompletionResponse topics = makeRequest("ArticleTopicKey", filter);
         ObjectMapper objectMapper = new ObjectMapper();
-        List<ArticleTopic> result = null;
+        List<ArticleTopicDto> result = null;
         try {
-            result = objectMapper.readValue(topics.getChoices().get(0).getMessage().getContent(), new TypeReference<List<ArticleTopic>>() {});
+            result = objectMapper.readValue(topics.getChoices().get(0).getMessage().getContent(), new TypeReference<List<ArticleTopicDto>>() {});
         } catch (JsonProcessingException e) {
             throw new RuntimeException(e);
         }
         return result;
     }
 
-    public List<Article> generateArticle(String topicTitle) {
+    public ArticleDto generateArticle(String topicTitle) {
         String filter = String.format(
-                "Пожалуйста, сгенерируйте статью на тему: '%s' с длиной от 400 слов. " +
-                        "В статье должны быть следующие разделы: " +
-                        "название, аннотация, ключевые слова, " +
-                        "введение, обзор литературы, основная часть " +
-                        "(методология, результаты), выводы и " +
-                        "дальнейшие перспективы исследования, " +
-                        "а также список литературы. Предоставьте ответ с " +
-                        "помощью этой схемы JSON: [{\"articleBody\": \"Текст ответа\"}]. " +
-                        "Я хочу, чтобы вы генерировали статью только в формате JSON " +
-                        "без каких-либо других объяснений." , topicTitle);
+                "Предоставьте ответ с помощью этой схемы JSON. : " +
+                        "\"{\"articleBody\": \"Весь текст ответа\"}\". Я хочу, " +
+                        "чтобы вы генерировали статью только в формате JSON без " +
+                        "каких-либо других объяснений. В теле JSON, за пределами " +
+                        "\"Весь текст ответа\".Пожалуйста, сгенерируйте статью " +
+                        "  на тему: \"%s\". Длина текса от 200 слов. " , topicTitle);
 
-        OpenAiChatCompletionResponse topics = makeRequest("ArticleTopicKey", filter);
+        OpenAiChatCompletionResponse topics = makeRequest("ArticleKey", filter);
         ObjectMapper objectMapper = new ObjectMapper();
-        List<Article> result = null;
+        ArticleDto result = null;
         try {
-            result = objectMapper.readValue(topics.getChoices().get(0).getMessage().getContent(), new TypeReference<List<Article>>() {});
+            result = objectMapper.readValue(topics.getChoices().get(0).getMessage().getContent(), new TypeReference<ArticleDto>() {});
         } catch (JsonProcessingException e) {
             throw new RuntimeException(e);
         }
@@ -96,14 +92,14 @@ public class OpenAiApiService {
         );
 
         OpenAiChatCompletionRequest chatRequest = new OpenAiChatCompletionRequest()
-                .setModel("gpt-3.5-turbo-1106")
+                .setModel("gpt-3.5-turbo")
                 .setMessages(messages)
                 .setTemperature(0.7f);
 
         Mono<OpenAiChatCompletionResponse> response = getWebClient().post()
                 .uri("chat/completions")
                 .contentType(MediaType.APPLICATION_JSON)
-                .header("Authorization", "Bearer " + openAiKey.getKey())
+                .header("Authorization", openAiKey.getKey())
                 .bodyValue(chatRequest)
                 .retrieve()
                 .bodyToMono(OpenAiChatCompletionResponse.class);
