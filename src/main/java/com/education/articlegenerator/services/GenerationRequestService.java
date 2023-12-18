@@ -2,6 +2,7 @@ package com.education.articlegenerator.services;
 
 
 import com.education.articlegenerator.entities.GenerationRequest;
+import com.education.articlegenerator.entities.Status;
 import com.education.articlegenerator.repositories.GenerationRequestRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -23,5 +24,14 @@ public class GenerationRequestService {
     public GenerationRequest getRequestById(Long requestId) {
         return generationRequestRepository.findById(requestId)
                 .orElseThrow(() -> new RuntimeException("generationrequest entity is not exist"));
+    }
+
+    public List<GenerationRequest> getRequestsByStatus(Status status) {
+        return generationRequestRepository.findGenerationRequestByStatus(status)
+                .orElseThrow(() -> new RuntimeException("generationrequest entity by status is not exist"));
+    }
+
+    public void modifyRequest(GenerationRequest generationRequest) {
+        generationRequestRepository.save(generationRequest);
     }
 }

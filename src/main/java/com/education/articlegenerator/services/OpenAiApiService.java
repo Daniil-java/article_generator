@@ -9,8 +9,10 @@ import com.education.articlegenerator.entities.OpenAiKey;
 import com.education.articlegenerator.properties.IntegrationServiceProperties;
 import com.education.articlegenerator.repositories.OpenAiApiRepository;
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.core.json.JsonReadFeature;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.json.JsonMapper;
 import io.netty.channel.ChannelOption;
 import io.netty.handler.timeout.ReadTimeoutHandler;
 import io.netty.handler.timeout.WriteTimeoutHandler;
@@ -70,10 +72,13 @@ public class OpenAiApiService {
                         "  на тему: \"%s\". Длина текса от 200 слов. " , topicTitle);
 
         OpenAiChatCompletionResponse topics = makeRequest("ArticleKey", filter);
-        ObjectMapper objectMapper = new ObjectMapper();
+        ObjectMapper objectMapper = JsonMapper.builder()
+                .enable(JsonReadFeature.ALLOW_UNESCAPED_CONTROL_CHARS)
+                .build();
         ArticleDto result = null;
         try {
-            result = objectMapper.readValue(topics.getChoices().get(0).getMessage().getContent(), new TypeReference<ArticleDto>() {});
+            result = objectMapper.readerFor(ArticleDto.class).readValue(
+                    topics.getChoices().get(0).getMessage().getContent());
         } catch (JsonProcessingException e) {
             throw new RuntimeException(e);
         }

@@ -9,8 +9,10 @@ import com.education.articlegenerator.entities.OpenAiKey;
 import com.education.articlegenerator.integration.OpenAiFeignClient;
 import com.education.articlegenerator.repositories.OpenAiApiRepository;
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.core.json.JsonReadFeature;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.json.JsonMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -39,7 +41,6 @@ public class OpenAiApiFeignService {
         OpenAiChatCompletionResponse response =
                 openAiFeignClient.generate(
                         openAiKey.getKey(), request);
-
 
         ObjectMapper objectMapper = new ObjectMapper();
         List<ArticleTopicDto> result = null;
@@ -70,13 +71,14 @@ public class OpenAiApiFeignService {
         OpenAiChatCompletionResponse response =
                 openAiFeignClient.generate(
                         openAiKey.getKey(), request);
-        ObjectMapper objectMapper = new ObjectMapper();
+
+        ObjectMapper objectMapper = JsonMapper.builder()
+                .enable(JsonReadFeature.ALLOW_UNESCAPED_CONTROL_CHARS)
+                .build();
         ArticleDto result = null;
         try {
-            result = objectMapper.readValue(
-                    response.getChoices().get(0).getMessage().getContent(),
-                    new TypeReference<ArticleDto>()
-                    {});
+            result = objectMapper.readerFor(ArticleDto.class).readValue(
+                    response.getChoices().get(0).getMessage().getContent());
         } catch (JsonProcessingException e) {
             throw new RuntimeException(e);
         }
@@ -91,7 +93,7 @@ public class OpenAiApiFeignService {
         );
 
         OpenAiChatCompletionRequest chatRequest = new OpenAiChatCompletionRequest()
-                .setModel("gpt-3.5-turbo-1106")
+                .setModel("gpt-3.5-turbo")
                 .setMessages(messages)
                 .setTemperature(0.7f);
 

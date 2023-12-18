@@ -3,9 +3,12 @@ package com.education.articlegenerator.services;
 import com.education.articlegenerator.dtos.ArticleDto;
 import com.education.articlegenerator.entities.Article;
 import com.education.articlegenerator.entities.ArticleTopic;
+
+import com.education.articlegenerator.entities.Status;
 import com.education.articlegenerator.repositories.ArticleRepository;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -45,9 +48,24 @@ public class ArticleService {
         ArticleTopic articleTopic = articleTopicService.getTopicById(id);
 //        ArticleDto articleDto = openAiApiService.generateArticle(articleTopic.getTopicTitle());
         ArticleDto articleDto = openAiApiFeignService.generateArticle(articleTopic.getTopicTitle());
+        articleTopicService.modifyArticleTopic(articleTopic.setStatus(Status.GENERATED));
         return articleRepository.save(new Article()
                 .setArticleBody(articleDto.getArticleBody())
                 .setArticleTopic(articleTopic)
         );
     }
+
+    @Transactional
+    @Scheduled(fixedRate = 10000)
+    public void scheduledGenerationArticle() {
+        System.out.println("scheduledGenerationArticle");
+        List<ArticleTopic> articleTopics = articleTopicService.getArticleTopicsByStatus(Status.CREATED);
+        if (articleTopics.isEmpty()) return;
+        List<Long> topicIds = new ArrayList<>();
+        for (ArticleTopic at : articleTopics) {
+            topicIds.add(at.getId());
+        }
+        getArticlesByTopicId(topicIds);
+    }
+
 }
