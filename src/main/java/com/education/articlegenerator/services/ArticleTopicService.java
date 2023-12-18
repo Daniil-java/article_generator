@@ -30,12 +30,12 @@ public class ArticleTopicService {
         if (topicsList.isPresent() && !topicsList.get().isEmpty()) {
             return topicsList.get();
         } else {
-            return toGenerateTopic(requestId);
+            return generateTopic(requestId);
         }
 
     }
 
-    private List<ArticleTopic> toGenerateTopic(Long requestId) {
+    private List<ArticleTopic> generateTopic(Long requestId) {
         GenerationRequest request = generationRequestService.getRequestById(requestId);
 //        List<ArticleTopicDto> topicList = openAiApiService.generateTopics(request.getRequestTags());
         List<ArticleTopicDto> topicList = openAiApiFeignService.generateTopics(request.getRequestTags());

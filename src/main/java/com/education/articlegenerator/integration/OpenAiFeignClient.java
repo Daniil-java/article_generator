@@ -8,7 +8,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
 
 @FeignClient(
-        value = "feignIntegrationClient",
+        value = "openAiFeignClient",
         url = "https://api.openai.com/v1/"
 )
 public interface OpenAiFeignClient {
