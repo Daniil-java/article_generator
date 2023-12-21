@@ -1,5 +1,6 @@
 package com.education.articlegenerator.services;
 
+import com.education.articlegenerator.dtos.ArticleDto;
 import com.education.articlegenerator.entities.Article;
 import com.education.articlegenerator.entities.ArticleTopic;
 import com.education.articlegenerator.repositories.ArticleRepository;
@@ -17,6 +18,7 @@ public class ArticleService {
     private final ArticleRepository articleRepository;
     private final ArticleTopicService articleTopicService;
     private final OpenAiApiService openAiApiService;
+    private final OpenAiApiFeignService openAiApiFeignService;
     public List<Article> getAll() {
         return articleRepository.findAll();
     }
@@ -25,11 +27,11 @@ public class ArticleService {
     public List<Article> getArticlesByTopicId(List<Long> topicIds) {
         List<Article> articleList = new ArrayList<>();
         for (Long id : topicIds) {
-            Optional<List<Article>> list = articleRepository.findAllByArticleTopicId(id);
-            if (list.isPresent() && !list.get().isEmpty()) {
-                articleList.addAll(list.get());
+            Optional<Article> article = articleRepository.findArticleByArticleTopicId(id);
+            if (article.isPresent()) {
+                articleList.add(article.get());
             } else {
-                articleList.addAll(generateArticle(id));
+                articleList.add(generateArticle(id));
             }
         }
         if (!articleList.isEmpty()) {
@@ -39,15 +41,13 @@ public class ArticleService {
         }
     }
 
-    private List<Article> generateArticle(Long id) {
-        List<Article> articleResultList = new ArrayList<>();
+    private Article generateArticle(Long id) {
         ArticleTopic articleTopic = articleTopicService.getTopicById(id);
-        List<Article> articles = openAiApiService.generateArticle(articleTopic.getTopicTitle());
-        for (Article article : articles) {
-            articleResultList.add(articleRepository.save(article
-                    .setArticleTopic(articleTopic)
-            ));
-        }
-        return articleResultList;
+//        ArticleDto articleDto = openAiApiService.generateArticle(articleTopic.getTopicTitle());
+        ArticleDto articleDto = openAiApiFeignService.generateArticle(articleTopic.getTopicTitle());
+        return articleRepository.save(new Article()
+                .setArticleBody(articleDto.getArticleBody())
+                .setArticleTopic(articleTopic)
+        );
     }
 }
