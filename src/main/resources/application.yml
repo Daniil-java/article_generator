@@ -15,7 +15,7 @@ spring:
     driver-class-name: org.postgresql.Driver
     password: password
     username: postgres
-    url: jdbc:postgresql://localhost:5432/article_generator
+    url: jdbc:postgresql://localhost:5433/article_generator
   jpa:
     database: postgresql
     properties:
