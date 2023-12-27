@@ -1,6 +1,8 @@
 package com.education.articlegenerator.services;
 
+import com.education.articlegenerator.dtos.AppException;
 import com.education.articlegenerator.dtos.ArticleDto;
+import com.education.articlegenerator.dtos.StatusCode;
 import com.education.articlegenerator.entities.Article;
 import com.education.articlegenerator.entities.ArticleTopic;
 import com.education.articlegenerator.repositories.ArticleRepository;
@@ -34,10 +36,13 @@ public class ArticleService {
                 articleList.add(generateArticle(id));
             }
         }
+
+        articleList.clear();
+
         if (!articleList.isEmpty()) {
             return articleList;
         } else {
-            throw new RuntimeException("articleList is Empty! ArticleService");
+            throw new AppException(StatusCode.BAD_REQUEST);
         }
     }
 

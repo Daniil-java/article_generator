@@ -1,7 +1,6 @@
 package com.education.articlegenerator.dto.openai;
 
 import lombok.Data;
-import lombok.ToString;
 import lombok.experimental.Accessors;
 
 import java.util.List;
