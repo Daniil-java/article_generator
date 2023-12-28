@@ -2,7 +2,7 @@ package com.education.articlegenerator.services;
 
 
 import com.education.articlegenerator.dtos.AppException;
-import com.education.articlegenerator.dtos.StatusCode;
+import com.education.articlegenerator.dtos.ErrorStatus;
 import com.education.articlegenerator.entities.GenerationRequest;
 import com.education.articlegenerator.repositories.GenerationRequestRepository;
 import lombok.RequiredArgsConstructor;
@@ -24,6 +24,6 @@ public class GenerationRequestService {
 
     public GenerationRequest getRequestById(Long requestId) {
         return generationRequestRepository.findById(requestId)
-                .orElseThrow(() -> new AppException(StatusCode.BAD_REQUEST));
+                .orElseThrow(() -> new AppException(ErrorStatus.GENERATION_REQUEST_NOT_FOUND));
     }
 }

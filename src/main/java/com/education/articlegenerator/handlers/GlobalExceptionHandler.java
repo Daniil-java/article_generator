@@ -1,19 +1,29 @@
 package com.education.articlegenerator.handlers;
 
 import com.education.articlegenerator.dtos.AppException;
-import com.education.articlegenerator.dtos.StatusCode;
+import com.education.articlegenerator.dtos.ErrorResponse;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.context.request.WebRequest;
+import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
+import java.time.LocalDateTime;
 
 @ControllerAdvice
 @Slf4j
 public class GlobalExceptionHandler {
     @ExceptionHandler
-    public ResponseEntity<AppException> catchAppException(AppException e) {
-        log.error(e.getException().getMessage());
-        return new ResponseEntity<>(new AppException(StatusCode.BAD_REQUEST), HttpStatus.NOT_FOUND);
+    public ResponseEntity<ErrorResponse> catchAppException(AppException e, WebRequest request) {
+        log.error(e.getErrorStatus().toString());
+        return new ResponseEntity<>(
+                new ErrorResponse()
+                        .setStatus(e.getErrorStatus().getHttpStatus().value())
+                        .setReasonPhrase(e.getErrorStatus().getHttpStatus().getReasonPhrase())
+                        .setMessage(e.getErrorStatus().getMessage())
+                        .setErrorCode(e.getErrorStatus())
+                        .setAddress(ServletUriComponentsBuilder.fromCurrentRequest().toUriString())
+                        .setCreated(LocalDateTime.now()),
+                e.getErrorStatus().getHttpStatus());
     }
 }

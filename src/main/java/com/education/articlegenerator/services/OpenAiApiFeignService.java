@@ -6,7 +6,7 @@ import com.education.articlegenerator.dto.openai.OpenAiChatCompletionResponse;
 import com.education.articlegenerator.dtos.AppException;
 import com.education.articlegenerator.dtos.ArticleDto;
 import com.education.articlegenerator.dtos.ArticleTopicDto;
-import com.education.articlegenerator.dtos.StatusCode;
+import com.education.articlegenerator.dtos.ErrorStatus;
 import com.education.articlegenerator.entities.OpenAiKey;
 import com.education.articlegenerator.integration.OpenAiFeignClient;
 import com.education.articlegenerator.repositories.OpenAiApiRepository;
@@ -51,7 +51,7 @@ public class OpenAiApiFeignService {
                     new TypeReference<List<ArticleTopicDto>>()
                     {});
         } catch (JsonProcessingException e) {
-            throw new AppException(StatusCode.BAD_REQUEST);
+            throw new AppException(ErrorStatus.ARTICLE_TOPIC_BAD_REQUEST);
         }
         return result;
     }
@@ -80,7 +80,7 @@ public class OpenAiApiFeignService {
                     new TypeReference<ArticleDto>()
                     {});
         } catch (JsonProcessingException e) {
-            throw new AppException(StatusCode.BAD_REQUEST);
+            throw new AppException(ErrorStatus.ARTICLE_BAD_REQUEST);
         }
         return result;
     }
