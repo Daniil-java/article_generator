@@ -10,8 +10,8 @@ public enum ErrorStatus {
     ARTICLE_NOT_FOUND(HttpStatus.NOT_FOUND, "Article does not exist"),
     ARTICLE_TOPIC_NOT_FOUND(HttpStatus.NOT_FOUND, "ArticleTopic does not exist"),
     GENERATION_REQUEST_NOT_FOUND(HttpStatus.NOT_FOUND, "Request does not exist"),
-    ARTICLE_BAD_REQUEST(HttpStatus.BAD_REQUEST, "Try again later"),
-    ARTICLE_TOPIC_BAD_REQUEST(HttpStatus.BAD_REQUEST, "Try again later");
+    OPENAI_INCORRECT_ANSWER(HttpStatus.BAD_REQUEST, "OpenAI sent an incorrect response! Try later!"),
+    FAILED_GENERATE(HttpStatus.BAD_REQUEST, "Failed to generate article! Try later!");
 
     private HttpStatus httpStatus;
     private String message;

@@ -3,7 +3,7 @@ package com.education.articlegenerator.services;
 import com.education.articlegenerator.dto.openai.Message;
 import com.education.articlegenerator.dto.openai.OpenAiChatCompletionRequest;
 import com.education.articlegenerator.dto.openai.OpenAiChatCompletionResponse;
-import com.education.articlegenerator.dtos.AppException;
+import com.education.articlegenerator.dtos.ErrorResponseException;
 import com.education.articlegenerator.dtos.ArticleDto;
 import com.education.articlegenerator.dtos.ArticleTopicDto;
 import com.education.articlegenerator.dtos.ErrorStatus;
@@ -57,7 +57,7 @@ public class OpenAiApiService {
         try {
             result = objectMapper.readValue(topics.getChoices().get(0).getMessage().getContent(), new TypeReference<List<ArticleTopicDto>>() {});
         } catch (JsonProcessingException e) {
-            throw new AppException(ErrorStatus.ARTICLE_TOPIC_BAD_REQUEST);
+            throw new ErrorResponseException(ErrorStatus.OPENAI_INCORRECT_ANSWER, e);
         }
         return result;
     }
@@ -77,7 +77,7 @@ public class OpenAiApiService {
         try {
             result = objectMapper.readValue(topics.getChoices().get(0).getMessage().getContent(), new TypeReference<ArticleDto>() {});
         } catch (JsonProcessingException e) {
-            throw new AppException(ErrorStatus.ARTICLE_BAD_REQUEST);
+            throw new ErrorResponseException(ErrorStatus.OPENAI_INCORRECT_ANSWER, e);
         }
         return result;
     }

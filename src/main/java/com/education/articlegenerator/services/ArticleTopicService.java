@@ -1,6 +1,6 @@
 package com.education.articlegenerator.services;
 
-import com.education.articlegenerator.dtos.AppException;
+import com.education.articlegenerator.dtos.ErrorResponseException;
 import com.education.articlegenerator.dtos.ArticleTopicDto;
 import com.education.articlegenerator.dtos.ErrorStatus;
 import com.education.articlegenerator.entities.ArticleTopic;
@@ -52,6 +52,6 @@ public class ArticleTopicService {
 
     public ArticleTopic getTopicById(Long id) {
         return articleTopicRepository.findById(id)
-                .orElseThrow(() -> new AppException(ErrorStatus.ARTICLE_TOPIC_NOT_FOUND));
+                .orElseThrow(() -> new ErrorResponseException(ErrorStatus.ARTICLE_TOPIC_NOT_FOUND));
     }
 }

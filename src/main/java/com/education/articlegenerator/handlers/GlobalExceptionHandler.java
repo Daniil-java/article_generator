@@ -1,6 +1,6 @@
 package com.education.articlegenerator.handlers;
 
-import com.education.articlegenerator.dtos.AppException;
+import com.education.articlegenerator.dtos.ErrorResponseException;
 import com.education.articlegenerator.dtos.ErrorResponse;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
@@ -14,8 +14,8 @@ import java.time.LocalDateTime;
 @Slf4j
 public class GlobalExceptionHandler {
     @ExceptionHandler
-    public ResponseEntity<ErrorResponse> catchAppException(AppException e, WebRequest request) {
-        log.error(e.getErrorStatus().toString());
+    public ResponseEntity<ErrorResponse> catchAppException(ErrorResponseException e, WebRequest request) {
+        log.error("Error occurred", e);
         return new ResponseEntity<>(
                 new ErrorResponse()
                         .setStatus(e.getErrorStatus().getHttpStatus().value())

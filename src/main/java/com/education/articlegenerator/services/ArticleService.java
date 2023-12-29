@@ -1,6 +1,6 @@
 package com.education.articlegenerator.services;
 
-import com.education.articlegenerator.dtos.AppException;
+import com.education.articlegenerator.dtos.ErrorResponseException;
 import com.education.articlegenerator.dtos.ArticleDto;
 import com.education.articlegenerator.dtos.ErrorStatus;
 import com.education.articlegenerator.entities.Article;
@@ -39,7 +39,7 @@ public class ArticleService {
         if (!articleList.isEmpty()) {
             return articleList;
         } else {
-            throw new AppException(ErrorStatus.ARTICLE_BAD_REQUEST);
+            throw new ErrorResponseException(ErrorStatus.FAILED_GENERATE);
         }
     }
 
