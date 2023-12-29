@@ -1,8 +1,7 @@
 package com.education.articlegenerator.services;
 
-import com.education.articlegenerator.dto.openai.Message;
-import com.education.articlegenerator.dto.openai.OpenAiChatCompletionRequest;
-import com.education.articlegenerator.dto.openai.OpenAiChatCompletionResponse;
+import com.education.articlegenerator.dtos.openai.OpenAiChatCompletionRequest;
+import com.education.articlegenerator.dtos.openai.OpenAiChatCompletionResponse;
 import com.education.articlegenerator.dtos.ArticleDto;
 import com.education.articlegenerator.dtos.ArticleTopicDto;
 import com.education.articlegenerator.entities.OpenAiKey;
@@ -15,8 +14,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.json.JsonMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-
-import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -34,10 +31,10 @@ public class OpenAiApiFeignService {
                         "JSON без каких-либо других объяснений.", tags
         );
 
-        OpenAiChatCompletionRequest request = makeRequest(filter);
+        OpenAiChatCompletionRequest request = OpenAiChatCompletionRequest.makeRequest(filter);
         OpenAiKey openAiKey = openAiApiRepository.findByName("ArticleTopicKey")
                 .orElseThrow(() -> new RuntimeException(
-                        "Key is not exist"));
+                        "Key does not exist"));
         OpenAiChatCompletionResponse response =
                 openAiFeignClient.generate(
                         openAiKey.getKey(), request);
@@ -50,7 +47,7 @@ public class OpenAiApiFeignService {
                     new TypeReference<List<ArticleTopicDto>>()
                     {});
         } catch (JsonProcessingException e) {
-            throw new RuntimeException(e);
+            throw new RuntimeException("OpenAI sent an incorrect response! Try later!");
         }
         return result;
     }
@@ -64,10 +61,10 @@ public class OpenAiApiFeignService {
                         "\"Весь текст ответа\".Пожалуйста, сгенерируйте статью " +
                         "  на тему: \"%s\". Длина текса от 200 слов. " , topicTitle);
 
-        OpenAiChatCompletionRequest request = makeRequest(filter);
+        OpenAiChatCompletionRequest request = OpenAiChatCompletionRequest.makeRequest(filter);
         OpenAiKey openAiKey = openAiApiRepository.findByName("ArticleKey")
                 .orElseThrow(() -> new RuntimeException(
-                        "Key is not exist"));
+                        "Key does not exist"));
         OpenAiChatCompletionResponse response =
                 openAiFeignClient.generate(
                         openAiKey.getKey(), request);
@@ -80,24 +77,10 @@ public class OpenAiApiFeignService {
             result = objectMapper.readerFor(ArticleDto.class).readValue(
                     response.getChoices().get(0).getMessage().getContent());
         } catch (JsonProcessingException e) {
-            throw new RuntimeException(e);
+            throw new RuntimeException("OpenAI sent an incorrect response! Try later!");
         }
         return result;
     }
 
-    private OpenAiChatCompletionRequest makeRequest(String request) {
-        ArrayList<Message> messages = new ArrayList<>();
-        messages.add(new Message()
-                .setRole("user")
-                .setContent(request)
-        );
-
-        OpenAiChatCompletionRequest chatRequest = new OpenAiChatCompletionRequest()
-                .setModel("gpt-3.5-turbo")
-                .setMessages(messages)
-                .setTemperature(0.7f);
-
-        return chatRequest;
-    }
 
 }

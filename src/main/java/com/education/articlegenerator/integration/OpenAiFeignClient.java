@@ -1,7 +1,7 @@
 package com.education.articlegenerator.integration;
 
-import com.education.articlegenerator.dto.openai.OpenAiChatCompletionRequest;
-import com.education.articlegenerator.dto.openai.OpenAiChatCompletionResponse;
+import com.education.articlegenerator.dtos.openai.OpenAiChatCompletionRequest;
+import com.education.articlegenerator.dtos.openai.OpenAiChatCompletionResponse;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;

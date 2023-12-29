@@ -7,6 +7,7 @@ import com.education.articlegenerator.entities.Status;
 import com.education.articlegenerator.repositories.ArticleTopicRepository;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
@@ -16,6 +17,7 @@ import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class ArticleTopicService {
     private final ArticleTopicRepository articleTopicRepository;
     private final GenerationRequestService generationRequestService;
@@ -50,7 +52,7 @@ public class ArticleTopicService {
                     .setStatus(Status.CREATED))
             );
             request.setStatus(Status.GENERATED);
-            generationRequestService.modifyRequest(request);
+            generationRequestService.saveRequest(request);
         }
         return resultList;
     }
@@ -65,23 +67,28 @@ public class ArticleTopicService {
     @Transactional
     @Scheduled(fixedRate = 10000)
     public void scheduledGenerationTopic() {
-        System.out.println("scheduledGenerationTopic");
+        log.info("Scheduled generation of article topic is started!");
         List<GenerationRequest> generationRequests = generationRequestService.getRequestsByStatus(Status.CREATED);
-        if (generationRequests.isEmpty()) return;
-
-        for (GenerationRequest gr : generationRequests) {
-            getTopicsByRequestId(gr.getId());
+        if (generationRequests.isEmpty()) {
+            log.info("There are no ungenerated topics!");
+            return;
+        } else {
+            log.info("Found " + generationRequests.size() + " requests without generated topics");
         }
+
+        generationRequests.stream()
+                .map(GenerationRequest::getId)
+                .forEach(this::getTopicsByRequestId);
+
+        log.info("The work is completed. Topics were generated on " + generationRequests.size() + " requests");
     }
 
     public List<ArticleTopic> getArticleTopicsByStatus(Status status) {
-        return articleTopicRepository.findArticleTopicByStatus(status)
-                .orElseThrow(() -> new RuntimeException(
-                        "Topic is not exist!. ArticleTopicService.getArticleTopicsByStatus"));
-
+        Optional<List<ArticleTopic>> articleTopics = articleTopicRepository.findArticleTopicByStatus(status);
+        return articleTopics.isEmpty() ? new ArrayList<>() : articleTopics.get();
     }
 
-    public void modifyArticleTopic(ArticleTopic articleTopic) {
+    public void saveArticleTopic(ArticleTopic articleTopic) {
         articleTopicRepository.save(articleTopic);
     }
 }

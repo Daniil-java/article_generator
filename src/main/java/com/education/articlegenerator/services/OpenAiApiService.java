@@ -1,8 +1,7 @@
 package com.education.articlegenerator.services;
 
-import com.education.articlegenerator.dto.openai.Message;
-import com.education.articlegenerator.dto.openai.OpenAiChatCompletionRequest;
-import com.education.articlegenerator.dto.openai.OpenAiChatCompletionResponse;
+import com.education.articlegenerator.dtos.openai.OpenAiChatCompletionRequest;
+import com.education.articlegenerator.dtos.openai.OpenAiChatCompletionResponse;
 import com.education.articlegenerator.dtos.ArticleDto;
 import com.education.articlegenerator.dtos.ArticleTopicDto;
 import com.education.articlegenerator.entities.OpenAiKey;
@@ -25,8 +24,6 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Mono;
 import reactor.netty.http.client.HttpClient;
-
-import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
@@ -57,7 +54,7 @@ public class OpenAiApiService {
         try {
             result = objectMapper.readValue(topics.getChoices().get(0).getMessage().getContent(), new TypeReference<List<ArticleTopicDto>>() {});
         } catch (JsonProcessingException e) {
-            throw new RuntimeException(e);
+            throw new RuntimeException("OpenAI sent an incorrect response! Try later!");
         }
         return result;
     }
@@ -80,7 +77,7 @@ public class OpenAiApiService {
             result = objectMapper.readerFor(ArticleDto.class).readValue(
                     topics.getChoices().get(0).getMessage().getContent());
         } catch (JsonProcessingException e) {
-            throw new RuntimeException(e);
+            throw new RuntimeException("OpenAI sent an incorrect response! Try later!");
         }
         return result;
     }
@@ -88,18 +85,9 @@ public class OpenAiApiService {
     private OpenAiChatCompletionResponse makeRequest(String keyName, String request) {
         OpenAiKey openAiKey = openAiApiRepository.findByName(keyName)
                 .orElseThrow(() -> new RuntimeException(
-                        "Key is not exist"));
+                        "Key does not exist"));
 
-        ArrayList<Message> messages = new ArrayList<>();
-        messages.add(new Message()
-                .setRole("user")
-                .setContent(request)
-        );
-
-        OpenAiChatCompletionRequest chatRequest = new OpenAiChatCompletionRequest()
-                .setModel("gpt-3.5-turbo")
-                .setMessages(messages)
-                .setTemperature(0.7f);
+        OpenAiChatCompletionRequest chatRequest = OpenAiChatCompletionRequest.makeRequest(request);
 
         Mono<OpenAiChatCompletionResponse> response = getWebClient().post()
                 .uri("chat/completions")

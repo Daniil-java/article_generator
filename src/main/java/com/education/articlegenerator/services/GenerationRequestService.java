@@ -1,12 +1,14 @@
 package com.education.articlegenerator.services;
 
-
 import com.education.articlegenerator.entities.GenerationRequest;
 import com.education.articlegenerator.entities.Status;
 import com.education.articlegenerator.repositories.GenerationRequestRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -27,11 +29,11 @@ public class GenerationRequestService {
     }
 
     public List<GenerationRequest> getRequestsByStatus(Status status) {
-        return generationRequestRepository.findGenerationRequestByStatus(status)
-                .orElseThrow(() -> new RuntimeException("generationrequest entity by status is not exist"));
+        Optional<List<GenerationRequest>> generationRequests = generationRequestRepository.findGenerationRequestByStatus(status);
+        return generationRequests.isEmpty() ? new ArrayList<>() : generationRequests.get();
     }
 
-    public void modifyRequest(GenerationRequest generationRequest) {
+    public void saveRequest(GenerationRequest generationRequest) {
         generationRequestRepository.save(generationRequest);
     }
 }

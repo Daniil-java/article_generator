@@ -8,6 +8,7 @@ import com.education.articlegenerator.entities.Status;
 import com.education.articlegenerator.repositories.ArticleRepository;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
@@ -17,6 +18,7 @@ import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class ArticleService {
     private final ArticleRepository articleRepository;
     private final ArticleTopicService articleTopicService;
@@ -48,7 +50,7 @@ public class ArticleService {
         ArticleTopic articleTopic = articleTopicService.getTopicById(id);
 //        ArticleDto articleDto = openAiApiService.generateArticle(articleTopic.getTopicTitle());
         ArticleDto articleDto = openAiApiFeignService.generateArticle(articleTopic.getTopicTitle());
-        articleTopicService.modifyArticleTopic(articleTopic.setStatus(Status.GENERATED));
+        articleTopicService.saveArticleTopic(articleTopic.setStatus(Status.GENERATED));
         return articleRepository.save(new Article()
                 .setArticleBody(articleDto.getArticleBody())
                 .setArticleTopic(articleTopic)
@@ -58,14 +60,19 @@ public class ArticleService {
     @Transactional
     @Scheduled(fixedRate = 10000)
     public void scheduledGenerationArticle() {
-        System.out.println("scheduledGenerationArticle");
+        log.info("Scheduled generation of article is started!");
         List<ArticleTopic> articleTopics = articleTopicService.getArticleTopicsByStatus(Status.CREATED);
-        if (articleTopics.isEmpty()) return;
-        List<Long> topicIds = new ArrayList<>();
-        for (ArticleTopic at : articleTopics) {
-            topicIds.add(at.getId());
+        if (articleTopics.isEmpty()) {
+            log.info("There are no ungenerated articles!");
+            return;
+        } else {
+            log.info("Found " + articleTopics.size() + " topics without generated articles");
         }
+        List<Long> topicIds = articleTopics.stream()
+                .map(ArticleTopic::getId)
+                .toList();
         getArticlesByTopicId(topicIds);
+        log.info("The work is completed. Articles were generated on " + topicIds.size() + " topics");
     }
 
 }

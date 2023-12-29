@@ -1,4 +1,4 @@
-package com.education.articlegenerator.dto.openai;
+package com.education.articlegenerator.dtos.openai;
 
 import lombok.Data;
 import lombok.experimental.Accessors;
