@@ -4,7 +4,7 @@ import lombok.Data;
 
 @Data
 public class ErrorResponseException extends RuntimeException{
-    private ErrorStatus errorStatus;
+    private final ErrorStatus errorStatus;
 
     public ErrorResponseException(ErrorStatus errorStatus, Throwable ex) {
         super(ex);

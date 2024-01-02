@@ -84,8 +84,7 @@ public class OpenAiApiService {
 
     private OpenAiChatCompletionResponse makeRequest(String keyName, String request) {
         OpenAiKey openAiKey = openAiApiRepository.findByName(keyName)
-                .orElseThrow(() -> new RuntimeException(
-                        "Key is not exist"));
+                .orElseThrow(() -> new ErrorResponseException(ErrorStatus.KEY_DOESNT_EXIST));
 
         ArrayList<Message> messages = new ArrayList<>();
         messages.add(new Message()

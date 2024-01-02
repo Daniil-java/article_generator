@@ -36,8 +36,7 @@ public class OpenAiApiFeignService {
 
         OpenAiChatCompletionRequest request = makeRequest(filter);
         OpenAiKey openAiKey = openAiApiRepository.findByName("ArticleTopicKey")
-                .orElseThrow(() -> new RuntimeException(
-                        "Key is not exist"));
+                .orElseThrow(() -> new ErrorResponseException(ErrorStatus.ARTICLE_TOPIC_NOT_FOUND));
         OpenAiChatCompletionResponse response =
                 openAiFeignClient.generate(
                         openAiKey.getKey(), request);
@@ -67,8 +66,7 @@ public class OpenAiApiFeignService {
 
         OpenAiChatCompletionRequest request = makeRequest(filter);
         OpenAiKey openAiKey = openAiApiRepository.findByName("ArticleKey")
-                .orElseThrow(() -> new RuntimeException(
-                        "Key is not exist"));
+                .orElseThrow(() -> new ErrorResponseException(ErrorStatus.ARTICLE_TOPIC_NOT_FOUND));
         OpenAiChatCompletionResponse response =
                 openAiFeignClient.generate(
                         openAiKey.getKey(), request);
@@ -92,12 +90,10 @@ public class OpenAiApiFeignService {
                 .setContent(request)
         );
 
-        OpenAiChatCompletionRequest chatRequest = new OpenAiChatCompletionRequest()
+        return new OpenAiChatCompletionRequest()
                 .setModel("gpt-3.5-turbo-1106")
                 .setMessages(messages)
                 .setTemperature(0.7f);
-
-        return chatRequest;
     }
 
 }
