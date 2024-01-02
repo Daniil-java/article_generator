@@ -1,6 +1,8 @@
 package com.education.articlegenerator.services;
 
+import com.education.articlegenerator.dtos.ErrorResponseException;
 import com.education.articlegenerator.dtos.ArticleTopicDto;
+import com.education.articlegenerator.dtos.ErrorStatus;
 import com.education.articlegenerator.entities.ArticleTopic;
 import com.education.articlegenerator.entities.GenerationRequest;
 import com.education.articlegenerator.entities.Status;
@@ -23,7 +25,6 @@ public class ArticleTopicService {
     private final GenerationRequestService generationRequestService;
     private final OpenAiApiService openAiApiService;
     private final OpenAiApiFeignService openAiApiFeignService;
-
     public List<ArticleTopic> getAll() {
         return articleTopicRepository.findAll();
     }
@@ -59,9 +60,7 @@ public class ArticleTopicService {
 
     public ArticleTopic getTopicById(Long id) {
         return articleTopicRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException(
-                        "Topic is not exist!. ArticleTopicService.getTopicsById(" + id + ")"
-                ));
+                .orElseThrow(() -> new ErrorResponseException(ErrorStatus.ARTICLE_TOPIC_NOT_FOUND));
     }
 
     @Transactional

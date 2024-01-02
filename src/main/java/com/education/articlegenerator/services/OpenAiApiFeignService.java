@@ -1,9 +1,14 @@
 package com.education.articlegenerator.services;
 
+import com.education.articlegenerator.dto.openai.Message;
+import com.education.articlegenerator.dto.openai.OpenAiChatCompletionRequest;
+import com.education.articlegenerator.dto.openai.OpenAiChatCompletionResponse;
+import com.education.articlegenerator.dtos.ErrorResponseException;
 import com.education.articlegenerator.dtos.openai.OpenAiChatCompletionRequest;
 import com.education.articlegenerator.dtos.openai.OpenAiChatCompletionResponse;
 import com.education.articlegenerator.dtos.ArticleDto;
 import com.education.articlegenerator.dtos.ArticleTopicDto;
+import com.education.articlegenerator.dtos.ErrorStatus;
 import com.education.articlegenerator.entities.OpenAiKey;
 import com.education.articlegenerator.integration.OpenAiFeignClient;
 import com.education.articlegenerator.repositories.OpenAiApiRepository;
@@ -33,8 +38,7 @@ public class OpenAiApiFeignService {
 
         OpenAiChatCompletionRequest request = OpenAiChatCompletionRequest.makeRequest(filter);
         OpenAiKey openAiKey = openAiApiRepository.findByName("ArticleTopicKey")
-                .orElseThrow(() -> new RuntimeException(
-                        "Key does not exist"));
+                .orElseThrow(() -> new ErrorResponseException(ErrorStatus.ARTICLE_TOPIC_NOT_FOUND));
         OpenAiChatCompletionResponse response =
                 openAiFeignClient.generate(
                         openAiKey.getKey(), request);
@@ -47,7 +51,7 @@ public class OpenAiApiFeignService {
                     new TypeReference<List<ArticleTopicDto>>()
                     {});
         } catch (JsonProcessingException e) {
-            throw new RuntimeException("OpenAI sent an incorrect response! Try later!");
+            throw new ErrorResponseException(ErrorStatus.OPENAI_INCORRECT_ANSWER, e);
         }
         return result;
     }
@@ -63,8 +67,7 @@ public class OpenAiApiFeignService {
 
         OpenAiChatCompletionRequest request = OpenAiChatCompletionRequest.makeRequest(filter);
         OpenAiKey openAiKey = openAiApiRepository.findByName("ArticleKey")
-                .orElseThrow(() -> new RuntimeException(
-                        "Key does not exist"));
+                .orElseThrow(() -> new ErrorResponseException(ErrorStatus.ARTICLE_TOPIC_NOT_FOUND));
         OpenAiChatCompletionResponse response =
                 openAiFeignClient.generate(
                         openAiKey.getKey(), request);
@@ -77,7 +80,7 @@ public class OpenAiApiFeignService {
             result = objectMapper.readerFor(ArticleDto.class).readValue(
                     response.getChoices().get(0).getMessage().getContent());
         } catch (JsonProcessingException e) {
-            throw new RuntimeException("OpenAI sent an incorrect response! Try later!");
+            throw new ErrorResponseException(ErrorStatus.OPENAI_INCORRECT_ANSWER, e);
         }
         return result;
     }
