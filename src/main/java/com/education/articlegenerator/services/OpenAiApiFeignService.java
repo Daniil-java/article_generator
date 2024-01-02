@@ -1,20 +1,19 @@
 package com.education.articlegenerator.services;
 
-import com.education.articlegenerator.dto.openai.Message;
-import com.education.articlegenerator.dto.openai.OpenAiChatCompletionRequest;
-import com.education.articlegenerator.dto.openai.OpenAiChatCompletionResponse;
+import com.education.articlegenerator.dtos.openai.OpenAiChatCompletionRequest;
+import com.education.articlegenerator.dtos.openai.OpenAiChatCompletionResponse;
 import com.education.articlegenerator.dtos.ArticleDto;
 import com.education.articlegenerator.dtos.ArticleTopicDto;
 import com.education.articlegenerator.entities.OpenAiKey;
 import com.education.articlegenerator.integration.OpenAiFeignClient;
 import com.education.articlegenerator.repositories.OpenAiApiRepository;
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.core.json.JsonReadFeature;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.json.JsonMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-
-import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -32,14 +31,13 @@ public class OpenAiApiFeignService {
                         "JSON без каких-либо других объяснений.", tags
         );
 
-        OpenAiChatCompletionRequest request = makeRequest(filter);
+        OpenAiChatCompletionRequest request = OpenAiChatCompletionRequest.makeRequest(filter);
         OpenAiKey openAiKey = openAiApiRepository.findByName("ArticleTopicKey")
                 .orElseThrow(() -> new RuntimeException(
-                        "Key is not exist"));
+                        "Key does not exist"));
         OpenAiChatCompletionResponse response =
                 openAiFeignClient.generate(
                         openAiKey.getKey(), request);
-
 
         ObjectMapper objectMapper = new ObjectMapper();
         List<ArticleTopicDto> result = null;
@@ -49,7 +47,7 @@ public class OpenAiApiFeignService {
                     new TypeReference<List<ArticleTopicDto>>()
                     {});
         } catch (JsonProcessingException e) {
-            throw new RuntimeException(e);
+            throw new RuntimeException("OpenAI sent an incorrect response! Try later!");
         }
         return result;
     }
@@ -63,39 +61,26 @@ public class OpenAiApiFeignService {
                         "\"Весь текст ответа\".Пожалуйста, сгенерируйте статью " +
                         "  на тему: \"%s\". Длина текса от 200 слов. " , topicTitle);
 
-        OpenAiChatCompletionRequest request = makeRequest(filter);
+        OpenAiChatCompletionRequest request = OpenAiChatCompletionRequest.makeRequest(filter);
         OpenAiKey openAiKey = openAiApiRepository.findByName("ArticleKey")
                 .orElseThrow(() -> new RuntimeException(
-                        "Key is not exist"));
+                        "Key does not exist"));
         OpenAiChatCompletionResponse response =
                 openAiFeignClient.generate(
                         openAiKey.getKey(), request);
-        ObjectMapper objectMapper = new ObjectMapper();
+
+        ObjectMapper objectMapper = JsonMapper.builder()
+                .enable(JsonReadFeature.ALLOW_UNESCAPED_CONTROL_CHARS)
+                .build();
         ArticleDto result = null;
         try {
-            result = objectMapper.readValue(
-                    response.getChoices().get(0).getMessage().getContent(),
-                    new TypeReference<ArticleDto>()
-                    {});
+            result = objectMapper.readerFor(ArticleDto.class).readValue(
+                    response.getChoices().get(0).getMessage().getContent());
         } catch (JsonProcessingException e) {
-            throw new RuntimeException(e);
+            throw new RuntimeException("OpenAI sent an incorrect response! Try later!");
         }
         return result;
     }
 
-    private OpenAiChatCompletionRequest makeRequest(String request) {
-        ArrayList<Message> messages = new ArrayList<>();
-        messages.add(new Message()
-                .setRole("user")
-                .setContent(request)
-        );
-
-        OpenAiChatCompletionRequest chatRequest = new OpenAiChatCompletionRequest()
-                .setModel("gpt-3.5-turbo-1106")
-                .setMessages(messages)
-                .setTemperature(0.7f);
-
-        return chatRequest;
-    }
 
 }
