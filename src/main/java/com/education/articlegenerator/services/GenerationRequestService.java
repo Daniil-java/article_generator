@@ -1,5 +1,8 @@
 package com.education.articlegenerator.services;
 
+
+import com.education.articlegenerator.dtos.ErrorResponseException;
+import com.education.articlegenerator.dtos.ErrorStatus;
 import com.education.articlegenerator.entities.GenerationRequest;
 import com.education.articlegenerator.entities.Status;
 import com.education.articlegenerator.repositories.GenerationRequestRepository;
@@ -25,7 +28,7 @@ public class GenerationRequestService {
 
     public GenerationRequest getRequestById(Long requestId) {
         return generationRequestRepository.findById(requestId)
-                .orElseThrow(() -> new RuntimeException("generationrequest entity is not exist"));
+                .orElseThrow(() -> new ErrorResponseException(ErrorStatus.GENERATION_REQUEST_NOT_FOUND));
     }
 
     public List<GenerationRequest> getRequestsByStatus(Status status) {

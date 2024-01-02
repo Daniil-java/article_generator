@@ -2,8 +2,10 @@ package com.education.articlegenerator.services;
 
 import com.education.articlegenerator.dtos.openai.OpenAiChatCompletionRequest;
 import com.education.articlegenerator.dtos.openai.OpenAiChatCompletionResponse;
+import com.education.articlegenerator.dtos.ErrorResponseException;
 import com.education.articlegenerator.dtos.ArticleDto;
 import com.education.articlegenerator.dtos.ArticleTopicDto;
+import com.education.articlegenerator.dtos.ErrorStatus;
 import com.education.articlegenerator.entities.OpenAiKey;
 import com.education.articlegenerator.properties.IntegrationServiceProperties;
 import com.education.articlegenerator.repositories.OpenAiApiRepository;
@@ -54,7 +56,7 @@ public class OpenAiApiService {
         try {
             result = objectMapper.readValue(topics.getChoices().get(0).getMessage().getContent(), new TypeReference<List<ArticleTopicDto>>() {});
         } catch (JsonProcessingException e) {
-            throw new RuntimeException("OpenAI sent an incorrect response! Try later!");
+            throw new ErrorResponseException(ErrorStatus.OPENAI_INCORRECT_ANSWER, e);
         }
         return result;
     }
@@ -77,15 +79,14 @@ public class OpenAiApiService {
             result = objectMapper.readerFor(ArticleDto.class).readValue(
                     topics.getChoices().get(0).getMessage().getContent());
         } catch (JsonProcessingException e) {
-            throw new RuntimeException("OpenAI sent an incorrect response! Try later!");
+            throw new ErrorResponseException(ErrorStatus.OPENAI_INCORRECT_ANSWER, e);
         }
         return result;
     }
 
     private OpenAiChatCompletionResponse makeRequest(String keyName, String request) {
         OpenAiKey openAiKey = openAiApiRepository.findByName(keyName)
-                .orElseThrow(() -> new RuntimeException(
-                        "Key does not exist"));
+                .orElseThrow(() -> new ErrorResponseException(ErrorStatus.KEY_DOESNT_EXIST));
 
         OpenAiChatCompletionRequest chatRequest = OpenAiChatCompletionRequest.makeRequest(request);
 
