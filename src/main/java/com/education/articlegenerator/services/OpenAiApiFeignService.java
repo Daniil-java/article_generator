@@ -1,8 +1,5 @@
 package com.education.articlegenerator.services;
 
-import com.education.articlegenerator.dto.openai.Message;
-import com.education.articlegenerator.dto.openai.OpenAiChatCompletionRequest;
-import com.education.articlegenerator.dto.openai.OpenAiChatCompletionResponse;
 import com.education.articlegenerator.dtos.ErrorResponseException;
 import com.education.articlegenerator.dtos.openai.OpenAiChatCompletionRequest;
 import com.education.articlegenerator.dtos.openai.OpenAiChatCompletionResponse;
