@@ -4,6 +4,8 @@ import com.education.articlegenerator.dto.openai.Message;
 import com.education.articlegenerator.dto.openai.OpenAiChatCompletionRequest;
 import com.education.articlegenerator.dto.openai.OpenAiChatCompletionResponse;
 import com.education.articlegenerator.dtos.ErrorResponseException;
+import com.education.articlegenerator.dtos.openai.OpenAiChatCompletionRequest;
+import com.education.articlegenerator.dtos.openai.OpenAiChatCompletionResponse;
 import com.education.articlegenerator.dtos.ArticleDto;
 import com.education.articlegenerator.dtos.ArticleTopicDto;
 import com.education.articlegenerator.dtos.ErrorStatus;
@@ -11,8 +13,10 @@ import com.education.articlegenerator.entities.OpenAiKey;
 import com.education.articlegenerator.properties.IntegrationServiceProperties;
 import com.education.articlegenerator.repositories.OpenAiApiRepository;
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.core.json.JsonReadFeature;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.json.JsonMapper;
 import io.netty.channel.ChannelOption;
 import io.netty.handler.timeout.ReadTimeoutHandler;
 import io.netty.handler.timeout.WriteTimeoutHandler;
@@ -25,8 +29,6 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Mono;
 import reactor.netty.http.client.HttpClient;
-
-import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
@@ -72,10 +74,13 @@ public class OpenAiApiService {
                         "  на тему: \"%s\". Длина текса от 200 слов. " , topicTitle);
 
         OpenAiChatCompletionResponse topics = makeRequest("ArticleKey", filter);
-        ObjectMapper objectMapper = new ObjectMapper();
+        ObjectMapper objectMapper = JsonMapper.builder()
+                .enable(JsonReadFeature.ALLOW_UNESCAPED_CONTROL_CHARS)
+                .build();
         ArticleDto result = null;
         try {
-            result = objectMapper.readValue(topics.getChoices().get(0).getMessage().getContent(), new TypeReference<ArticleDto>() {});
+            result = objectMapper.readerFor(ArticleDto.class).readValue(
+                    topics.getChoices().get(0).getMessage().getContent());
         } catch (JsonProcessingException e) {
             throw new ErrorResponseException(ErrorStatus.OPENAI_INCORRECT_ANSWER, e);
         }
@@ -86,16 +91,7 @@ public class OpenAiApiService {
         OpenAiKey openAiKey = openAiApiRepository.findByName(keyName)
                 .orElseThrow(() -> new ErrorResponseException(ErrorStatus.KEY_DOESNT_EXIST));
 
-        ArrayList<Message> messages = new ArrayList<>();
-        messages.add(new Message()
-                .setRole("user")
-                .setContent(request)
-        );
-
-        OpenAiChatCompletionRequest chatRequest = new OpenAiChatCompletionRequest()
-                .setModel("gpt-3.5-turbo")
-                .setMessages(messages)
-                .setTemperature(0.7f);
+        OpenAiChatCompletionRequest chatRequest = OpenAiChatCompletionRequest.makeRequest(request);
 
         Mono<OpenAiChatCompletionResponse> response = getWebClient().post()
                 .uri("chat/completions")
