@@ -25,7 +25,3 @@ spring:
   flyway:
     baselineOnMigrate: true
     locations: classpath:db.migration
-#
-#springdoc:
-#  swagger-ui:
-#    path: /swagger.html
