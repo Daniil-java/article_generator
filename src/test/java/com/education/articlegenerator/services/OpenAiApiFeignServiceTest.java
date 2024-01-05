@@ -75,8 +75,8 @@ public class OpenAiApiFeignServiceTest {
 
     @Test
     public void generateTopicsTest() {
-        Assertions.assertTrue(openAiApiFeignService
-                .generateTopics(TAGS).get(0).getTopicTitle().equals(TOPICTEST_RESULT_EXPECTED));
+        Assertions.assertEquals(TOPICTEST_RESULT_EXPECTED,
+                openAiApiFeignService.generateTopics(TAGS).get(0).getTopicTitle());
     }
 
     @Test
@@ -110,8 +110,8 @@ public class OpenAiApiFeignServiceTest {
 
     @Test
     public void generateArticleTest() {
-        Assertions.assertTrue(openAiApiFeignService
-                .generateArticle(TAGS).getArticleBody().equals(ARTICLETEST_RESULT_EXPECTED));
+        Assertions.assertEquals(ARTICLETEST_RESULT_EXPECTED, openAiApiFeignService
+                .generateArticle(TAGS).getArticleBody());
     }
 
     @Test

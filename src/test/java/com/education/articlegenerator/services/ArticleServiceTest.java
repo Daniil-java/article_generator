@@ -32,7 +32,7 @@ public class ArticleServiceTest {
     private OpenAiApiFeignService openAiApiFeignService;
 
     @Test
-    public void getArticlesByTopicIdTest() {
+    void getArticlesByTopicIdTest() {
         Article article = new Article().setId(1L);
         Mockito.doReturn(Optional.of(article)).when(articleRepository).findArticleByArticleTopicId(1L);
 
