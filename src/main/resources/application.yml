@@ -25,3 +25,12 @@ spring:
   flyway:
     baselineOnMigrate: true
     locations: classpath:db.migration
+
+integrations:
+  connect-timeout: 5000
+  read-timeout: 1000000
+  write-timeout: 5000
+  openai-api:
+    url: https://api.openai.com/v1/
+    article-key: ArticleKey
+    articletopic-key: ArticleTopicKey

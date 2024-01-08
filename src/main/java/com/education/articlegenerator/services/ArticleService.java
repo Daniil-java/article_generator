@@ -50,8 +50,8 @@ public class ArticleService {
 
     private Article generateArticle(Long id) {
         ArticleTopic articleTopic = articleTopicService.getTopicById(id);
-//        ArticleDto articleDto = openAiApiService.generateArticle(articleTopic.getTopicTitle());
-        ArticleDto articleDto = openAiApiFeignService.generateArticle(articleTopic.getTopicTitle());
+        ArticleDto articleDto = openAiApiService.generateArticle(articleTopic.getTopicTitle());
+//        ArticleDto articleDto = openAiApiFeignService.generateArticle(articleTopic.getTopicTitle());
         articleTopicService.saveArticleTopic(articleTopic.setStatus(Status.GENERATED));
         return articleRepository.save(new Article()
                 .setArticleBody(articleDto.getArticleBody())
