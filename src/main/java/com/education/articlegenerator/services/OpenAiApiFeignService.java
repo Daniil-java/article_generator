@@ -35,7 +35,7 @@ public class OpenAiApiFeignService {
 
         OpenAiChatCompletionRequest request = OpenAiChatCompletionRequest.makeRequest(filter);
         OpenAiKey openAiKey = openAiApiRepository.findByName("ArticleTopicKey")
-                .orElseThrow(() -> new ErrorResponseException(ErrorStatus.ARTICLE_TOPIC_NOT_FOUND));
+                .orElseThrow(() -> new ErrorResponseException(ErrorStatus.KEY_DOESNT_EXIST));
         OpenAiChatCompletionResponse response =
                 openAiFeignClient.generate(
                         openAiKey.getKey(), request);
@@ -64,7 +64,7 @@ public class OpenAiApiFeignService {
 
         OpenAiChatCompletionRequest request = OpenAiChatCompletionRequest.makeRequest(filter);
         OpenAiKey openAiKey = openAiApiRepository.findByName("ArticleKey")
-                .orElseThrow(() -> new ErrorResponseException(ErrorStatus.ARTICLE_TOPIC_NOT_FOUND));
+                .orElseThrow(() -> new ErrorResponseException(ErrorStatus.KEY_DOESNT_EXIST));
         OpenAiChatCompletionResponse response =
                 openAiFeignClient.generate(
                         openAiKey.getKey(), request);

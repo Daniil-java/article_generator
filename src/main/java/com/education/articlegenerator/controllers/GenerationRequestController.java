@@ -1,7 +1,6 @@
 package com.education.articlegenerator.controllers;
 
 import com.education.articlegenerator.dtos.ErrorResponse;
-import com.education.articlegenerator.entities.ArticleTopic;
 import com.education.articlegenerator.entities.GenerationRequest;
 import com.education.articlegenerator.services.GenerationRequestService;
 import io.swagger.v3.oas.annotations.Operation;
