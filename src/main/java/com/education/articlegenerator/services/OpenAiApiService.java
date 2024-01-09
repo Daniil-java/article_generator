@@ -44,7 +44,7 @@ public class OpenAiApiService {
     private String openAiUrl;
 
     public List<ArticleTopicDto> generateTopics(String tags) {
-        OpenAiChatCompletionResponse topics = makeRequest(openAiApiProperties.getARTICLE_TOPIC_KEY(), tags);
+        OpenAiChatCompletionResponse topics = makeRequest(openAiApiProperties.getArticleTopicKey(), tags);
 
         ObjectMapper objectMapper = new ObjectMapper();
         List<ArticleTopicDto> result = null;
@@ -57,7 +57,7 @@ public class OpenAiApiService {
     }
 
     public ArticleDto generateArticle(String topicTitle) {
-        OpenAiChatCompletionResponse topics = makeRequest(openAiApiProperties.getARTICLE_KEY(), topicTitle);
+        OpenAiChatCompletionResponse topics = makeRequest(openAiApiProperties.getArticleKey(), topicTitle);
         ObjectMapper objectMapper = JsonMapper.builder()
                 .enable(JsonReadFeature.ALLOW_UNESCAPED_CONTROL_CHARS)
                 .build();

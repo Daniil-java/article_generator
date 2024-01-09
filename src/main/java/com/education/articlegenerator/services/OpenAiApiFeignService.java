@@ -29,7 +29,7 @@ public class OpenAiApiFeignService {
     private final OpenAiApiProperties openAiApiProperties;
 
     public List<ArticleTopicDto> generateTopics(String tags) {
-        OpenAiKey openAiKey = openAiApiRepository.findByName(openAiApiProperties.getARTICLE_TOPIC_KEY())
+        OpenAiKey openAiKey = openAiApiRepository.findByName(openAiApiProperties.getArticleTopicKey())
                 .orElseThrow(() -> new ErrorResponseException(ErrorStatus.KEY_DOESNT_EXIST));
         OpenAiChatCompletionRequest request = OpenAiChatCompletionRequest.makeRequest(
                 String.format(openAiKey.getResponseMessage(), tags)
@@ -52,7 +52,7 @@ public class OpenAiApiFeignService {
     }
 
     public ArticleDto generateArticle(String topicTitle) {
-        OpenAiKey openAiKey = openAiApiRepository.findByName(openAiApiProperties.getARTICLE_KEY())
+        OpenAiKey openAiKey = openAiApiRepository.findByName(openAiApiProperties.getArticleKey())
                 .orElseThrow(() -> new ErrorResponseException(ErrorStatus.KEY_DOESNT_EXIST));
         OpenAiChatCompletionRequest request = OpenAiChatCompletionRequest.makeRequest(
                 String.format(openAiKey.getResponseMessage(), topicTitle));
