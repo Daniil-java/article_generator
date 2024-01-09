@@ -43,8 +43,8 @@ public class ArticleTopicService {
 
     private List<ArticleTopic> generateTopic(Long requestId) {
         GenerationRequest request = generationRequestService.getRequestById(requestId);
-//        List<ArticleTopicDto> topicList = openAiApiService.generateTopics(request.getRequestTags());
-        List<ArticleTopicDto> topicList = openAiApiFeignService.generateTopics(request.getRequestTags());
+        List<ArticleTopicDto> topicList = openAiApiService.generateTopics(request.getRequestTags());
+//        List<ArticleTopicDto> topicList = openAiApiFeignService.generateTopics(request.getRequestTags());
         List<ArticleTopic> resultList = new ArrayList<>();
         for (ArticleTopicDto articleTopic : topicList) {
             resultList.add(articleTopicRepository.save(new ArticleTopic()
