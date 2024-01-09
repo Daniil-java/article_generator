@@ -1,4 +1,4 @@
-package com.education.articlegenerator.properties;
+package com.education.articlegenerator.configurations;
 
 import lombok.Data;
 import org.springframework.beans.factory.annotation.Value;
@@ -7,10 +7,10 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 @Data
 @ConfigurationProperties
 public class IntegrationServiceProperties {
-    @Value("5000")
+    @Value("${integrations.connect-timeout:5000}")
     private Integer connectTimeout;
-    @Value("1000000")
+    @Value("${integrations.read-timeout:1000000}")
     private Integer readTimeout;
-    @Value("5000")
+    @Value("${integrations.write-timeout:5000}")
     private Integer writeTimeout;
 }

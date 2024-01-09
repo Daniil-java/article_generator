@@ -1,5 +1,6 @@
 package com.education.articlegenerator.services;
 
+import com.education.articlegenerator.configurations.OpenAiApiProperties;
 import com.education.articlegenerator.dtos.ErrorResponseException;
 import com.education.articlegenerator.dtos.openai.OpenAiChatCompletionRequest;
 import com.education.articlegenerator.dtos.openai.OpenAiChatCompletionResponse;
@@ -15,27 +16,24 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.json.JsonMapper;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import java.util.List;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class OpenAiApiFeignService {
     private final OpenAiFeignClient openAiFeignClient;
     private final OpenAiApiRepository openAiApiRepository;
+    private final OpenAiApiProperties openAiApiProperties;
 
     public List<ArticleTopicDto> generateTopics(String tags) {
-        String filter = String.format(
-                "Это поле/тема или список тегов: %s. Необходимо создать 10 заголовков. " +
-                        "Тема должна быть меньше 255 символов. Предоставьте ответ с " +
-                        "помощью этой схемы JSON: '[{\"topicTitle\": \"Вот название статьи\"}]'. " +
-                        "Я хочу, чтобы вы генерировали заголовок только в формате " +
-                        "JSON без каких-либо других объяснений.", tags
-        );
-
-        OpenAiChatCompletionRequest request = OpenAiChatCompletionRequest.makeRequest(filter);
-        OpenAiKey openAiKey = openAiApiRepository.findByName("ArticleTopicKey")
+        OpenAiKey openAiKey = openAiApiRepository.findByName(openAiApiProperties.getArticleTopicKey())
                 .orElseThrow(() -> new ErrorResponseException(ErrorStatus.KEY_DOESNT_EXIST));
+        OpenAiChatCompletionRequest request = OpenAiChatCompletionRequest.makeRequest(
+                String.format(openAiKey.getResponseMessage(), tags)
+        );
         OpenAiChatCompletionResponse response =
                 openAiFeignClient.generate(
                         openAiKey.getKey(), request);
@@ -54,17 +52,10 @@ public class OpenAiApiFeignService {
     }
 
     public ArticleDto generateArticle(String topicTitle) {
-        String filter = String.format(
-                "Предоставьте ответ с помощью этой схемы JSON. : " +
-                        "\"{\"articleBody\": \"Весь текст ответа\"}\". Я хочу, " +
-                        "чтобы вы генерировали статью только в формате JSON без " +
-                        "каких-либо других объяснений. В теле JSON, за пределами " +
-                        "\"Весь текст ответа\".Пожалуйста, сгенерируйте статью " +
-                        "  на тему: \"%s\". Длина текса от 200 слов. " , topicTitle);
-
-        OpenAiChatCompletionRequest request = OpenAiChatCompletionRequest.makeRequest(filter);
-        OpenAiKey openAiKey = openAiApiRepository.findByName("ArticleKey")
+        OpenAiKey openAiKey = openAiApiRepository.findByName(openAiApiProperties.getArticleKey())
                 .orElseThrow(() -> new ErrorResponseException(ErrorStatus.KEY_DOESNT_EXIST));
+        OpenAiChatCompletionRequest request = OpenAiChatCompletionRequest.makeRequest(
+                String.format(openAiKey.getResponseMessage(), topicTitle));
         OpenAiChatCompletionResponse response =
                 openAiFeignClient.generate(
                         openAiKey.getKey(), request);

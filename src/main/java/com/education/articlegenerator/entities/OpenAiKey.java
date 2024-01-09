@@ -25,6 +25,9 @@ public class OpenAiKey {
     @Column(name = "key")
     private String key;
 
+    @Column(name = "response_message")
+    private String responseMessage;
+
     @Column(name = "created")
     @CreationTimestamp
     private LocalDateTime created;

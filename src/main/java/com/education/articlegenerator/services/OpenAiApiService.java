@@ -1,5 +1,6 @@
 package com.education.articlegenerator.services;
 
+import com.education.articlegenerator.configurations.OpenAiApiProperties;
 import com.education.articlegenerator.dtos.openai.OpenAiChatCompletionRequest;
 import com.education.articlegenerator.dtos.openai.OpenAiChatCompletionResponse;
 import com.education.articlegenerator.dtos.ErrorResponseException;
@@ -7,7 +8,7 @@ import com.education.articlegenerator.dtos.ArticleDto;
 import com.education.articlegenerator.dtos.ArticleTopicDto;
 import com.education.articlegenerator.dtos.ErrorStatus;
 import com.education.articlegenerator.entities.OpenAiKey;
-import com.education.articlegenerator.properties.IntegrationServiceProperties;
+import com.education.articlegenerator.configurations.IntegrationServiceProperties;
 import com.education.articlegenerator.repositories.OpenAiApiRepository;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.json.JsonReadFeature;
@@ -32,25 +33,19 @@ import java.util.concurrent.TimeUnit;
 @Component
 @RequiredArgsConstructor
 @EnableConfigurationProperties(
-        {IntegrationServiceProperties.class}
+        {IntegrationServiceProperties.class, OpenAiApiProperties.class}
 )
 public class OpenAiApiService {
     private WebClient webClient;
     private final IntegrationServiceProperties isp;
     private final OpenAiApiRepository openAiApiRepository;
-    @Value("https://api.openai.com/v1/")
+    private final OpenAiApiProperties openAiApiProperties;
+    @Value("${integrations.openai-api.url}")
     private String openAiUrl;
 
     public List<ArticleTopicDto> generateTopics(String tags) {
+        OpenAiChatCompletionResponse topics = makeRequest(openAiApiProperties.getArticleTopicKey(), tags);
 
-        String filter = String.format(
-                "Это поле/тема или список тегов: %s. Необходимо создать 10 заголовков. " +
-                        "Тема должна быть меньше 255 символов. Предоставьте ответ с " +
-                        "помощью этой схемы JSON: '[{\"topicTitle\": \"Вот название статьи\"}]'. " +
-                        "Я хочу, чтобы вы генерировали заголовок только в формате " +
-                        "JSON без каких-либо других объяснений.", tags);
-
-        OpenAiChatCompletionResponse topics = makeRequest("ArticleTopicKey", filter);
         ObjectMapper objectMapper = new ObjectMapper();
         List<ArticleTopicDto> result = null;
         try {
@@ -62,15 +57,7 @@ public class OpenAiApiService {
     }
 
     public ArticleDto generateArticle(String topicTitle) {
-        String filter = String.format(
-                "Предоставьте ответ с помощью этой схемы JSON. : " +
-                        "\"{\"articleBody\": \"Весь текст ответа\"}\". Я хочу, " +
-                        "чтобы вы генерировали статью только в формате JSON без " +
-                        "каких-либо других объяснений. В теле JSON, за пределами " +
-                        "\"Весь текст ответа\".Пожалуйста, сгенерируйте статью " +
-                        "  на тему: \"%s\". Длина текса от 200 слов. " , topicTitle);
-
-        OpenAiChatCompletionResponse topics = makeRequest("ArticleKey", filter);
+        OpenAiChatCompletionResponse topics = makeRequest(openAiApiProperties.getArticleKey(), topicTitle);
         ObjectMapper objectMapper = JsonMapper.builder()
                 .enable(JsonReadFeature.ALLOW_UNESCAPED_CONTROL_CHARS)
                 .build();
@@ -84,11 +71,12 @@ public class OpenAiApiService {
         return result;
     }
 
-    private OpenAiChatCompletionResponse makeRequest(String keyName, String request) {
+    private OpenAiChatCompletionResponse makeRequest(String keyName, String tags) {
         OpenAiKey openAiKey = openAiApiRepository.findByName(keyName)
                 .orElseThrow(() -> new ErrorResponseException(ErrorStatus.KEY_DOESNT_EXIST));
 
-        OpenAiChatCompletionRequest chatRequest = OpenAiChatCompletionRequest.makeRequest(request);
+        OpenAiChatCompletionRequest chatRequest = OpenAiChatCompletionRequest
+                .makeRequest(String.format(openAiKey.getResponseMessage(), tags));
 
         Mono<OpenAiChatCompletionResponse> response = getWebClient().post()
                 .uri("chat/completions")

@@ -9,7 +9,7 @@ import org.springframework.web.bind.annotation.RequestHeader;
 
 @FeignClient(
         value = "openAiFeignClient",
-        url = "https://api.openai.com/v1/"
+        url = "${integrations.openai-api.url}"
 )
 public interface OpenAiFeignClient {
     @PostMapping("chat/completions")
