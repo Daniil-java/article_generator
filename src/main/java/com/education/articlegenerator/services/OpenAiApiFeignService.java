@@ -7,9 +7,8 @@ import com.education.articlegenerator.dtos.openai.OpenAiChatCompletionResponse;
 import com.education.articlegenerator.dtos.ArticleDto;
 import com.education.articlegenerator.dtos.ArticleTopicDto;
 import com.education.articlegenerator.dtos.ErrorStatus;
-import com.education.articlegenerator.entities.OpenAiKey;
+import com.education.articlegenerator.entities.OpenAiRequestAttributes;
 import com.education.articlegenerator.integration.OpenAiFeignClient;
-import com.education.articlegenerator.repositories.OpenAiApiRepository;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.json.JsonReadFeature;
 import com.fasterxml.jackson.core.type.TypeReference;
@@ -25,18 +24,17 @@ import java.util.List;
 @Slf4j
 public class OpenAiApiFeignService {
     private final OpenAiFeignClient openAiFeignClient;
-    private final OpenAiApiRepository openAiApiRepository;
     private final OpenAiApiProperties openAiApiProperties;
+    private final OpenAiRequestAttributesService openAiRequestAttributesService;
 
     public List<ArticleTopicDto> generateTopics(String tags) {
-        OpenAiKey openAiKey = openAiApiRepository.findByName(openAiApiProperties.getArticleTopicKey())
-                .orElseThrow(() -> new ErrorResponseException(ErrorStatus.KEY_DOESNT_EXIST));
+        OpenAiRequestAttributes openAiRequestAttributes = openAiRequestAttributesService.getByName(openAiApiProperties.getArticleTopicKey());
         OpenAiChatCompletionRequest request = OpenAiChatCompletionRequest.makeRequest(
-                String.format(openAiKey.getResponseMessage(), tags)
+                String.format(openAiRequestAttributes.getRequestMessage(), tags)
         );
         OpenAiChatCompletionResponse response =
                 openAiFeignClient.generate(
-                        openAiKey.getKey(), request);
+                        openAiRequestAttributes.getKey(), request);
 
         ObjectMapper objectMapper = new ObjectMapper();
         List<ArticleTopicDto> result = null;
@@ -52,13 +50,12 @@ public class OpenAiApiFeignService {
     }
 
     public ArticleDto generateArticle(String topicTitle) {
-        OpenAiKey openAiKey = openAiApiRepository.findByName(openAiApiProperties.getArticleKey())
-                .orElseThrow(() -> new ErrorResponseException(ErrorStatus.KEY_DOESNT_EXIST));
+        OpenAiRequestAttributes openAiRequestAttributes = openAiRequestAttributesService.getByName(openAiApiProperties.getArticleKey());
         OpenAiChatCompletionRequest request = OpenAiChatCompletionRequest.makeRequest(
-                String.format(openAiKey.getResponseMessage(), topicTitle));
+                String.format(openAiRequestAttributes.getRequestMessage(), topicTitle));
         OpenAiChatCompletionResponse response =
                 openAiFeignClient.generate(
-                        openAiKey.getKey(), request);
+                        openAiRequestAttributes.getKey(), request);
 
         ObjectMapper objectMapper = JsonMapper.builder()
                 .enable(JsonReadFeature.ALLOW_UNESCAPED_CONTROL_CHARS)
