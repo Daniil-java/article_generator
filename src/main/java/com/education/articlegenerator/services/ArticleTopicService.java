@@ -10,6 +10,8 @@ import com.education.articlegenerator.repositories.ArticleTopicRepository;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.redisson.api.RLock;
+import org.redisson.api.RedissonClient;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
@@ -25,6 +27,7 @@ public class ArticleTopicService {
     private final GenerationRequestService generationRequestService;
     private final OpenAiApiService openAiApiService;
     private final OpenAiApiFeignService openAiApiFeignService;
+    private final RedissonClient redissonClient;
     public List<ArticleTopic> getAll() {
         return articleTopicRepository.findAll();
     }
@@ -42,20 +45,31 @@ public class ArticleTopicService {
     }
 
     private List<ArticleTopic> generateTopic(Long requestId) {
-        GenerationRequest request = generationRequestService.getRequestById(requestId);
+        log.info("generate topic article");
+        RLock lock = redissonClient.getFairLock(String.valueOf(requestId));
+        lock.lock();
+        try {
+            log.info("start generate topic article");
+            GenerationRequest request = generationRequestService.getRequestById(requestId);
+            if (request.getStatus().equals(Status.GENERATED)) {
+                return request.getArticleTopics();
+            }
 //        List<ArticleTopicDto> topicList = openAiApiService.generateTopics(request.getRequestTags());
-        List<ArticleTopicDto> topicList = openAiApiFeignService.generateTopics(request.getRequestTags());
-        List<ArticleTopic> resultList = new ArrayList<>();
-        for (ArticleTopicDto articleTopic : topicList) {
-            resultList.add(articleTopicRepository.save(new ArticleTopic()
-                    .setTopicTitle(articleTopic.getTopicTitle())
-                    .setGenerationRequest(request)
-                    .setStatus(Status.CREATED))
-            );
-            request.setStatus(Status.GENERATED);
-            generationRequestService.saveRequest(request);
+            List<ArticleTopicDto> topicList = openAiApiFeignService.generateTopics(request.getRequestTags());
+            List<ArticleTopic> resultList = new ArrayList<>();
+            for (ArticleTopicDto articleTopic : topicList) {
+                resultList.add(articleTopicRepository.save(new ArticleTopic()
+                        .setTopicTitle(articleTopic.getTopicTitle())
+                        .setGenerationRequest(request)
+                        .setStatus(Status.CREATED))
+                );
+                request.setStatus(Status.GENERATED);
+                generationRequestService.saveRequest(request);
+            }
+            return resultList;
+        } finally {
+            lock.unlock();
         }
-        return resultList;
     }
 
     public ArticleTopic getTopicById(Long id) {

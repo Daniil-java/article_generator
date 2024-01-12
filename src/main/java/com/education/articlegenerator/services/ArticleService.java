@@ -11,6 +11,8 @@ import com.education.articlegenerator.repositories.ArticleRepository;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.redisson.api.RLock;
+import org.redisson.api.RedissonClient;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
@@ -26,6 +28,7 @@ public class ArticleService {
     private final ArticleTopicService articleTopicService;
     private final OpenAiApiService openAiApiService;
     private final OpenAiApiFeignService openAiApiFeignService;
+    private final RedissonClient redissonClient;
     public List<Article> getAll() {
         return articleRepository.findAll();
     }
@@ -49,14 +52,27 @@ public class ArticleService {
     }
 
     private Article generateArticle(Long id) {
-        ArticleTopic articleTopic = articleTopicService.getTopicById(id);
+        log.info("generate article");
+        RLock lock = redissonClient.getFairLock(String.valueOf(id));
+        lock.lock();
+        try {
+            log.info("start generate article");
+            ArticleTopic articleTopic = articleTopicService.getTopicById(id);
+            if (articleTopic.getStatus().equals(Status.GENERATED)) {
+                return articleTopic.getArticles().get(0);
+            }
 //        ArticleDto articleDto = openAiApiService.generateArticle(articleTopic.getTopicTitle());
-        ArticleDto articleDto = openAiApiFeignService.generateArticle(articleTopic.getTopicTitle());
-        articleTopicService.saveArticleTopic(articleTopic.setStatus(Status.GENERATED));
-        return articleRepository.save(new Article()
-                .setArticleBody(articleDto.getArticleBody())
-                .setArticleTopic(articleTopic)
-        );
+            ArticleDto articleDto = openAiApiFeignService.generateArticle(articleTopic.getTopicTitle());
+            articleTopicService.saveArticleTopic(articleTopic.setStatus(Status.GENERATED));
+            log.info("end generate article");
+            return articleRepository.save(new Article()
+                    .setArticleBody(articleDto.getArticleBody())
+                    .setArticleTopic(articleTopic)
+            );
+        } finally {
+            lock.unlock();
+        }
+
     }
 
     @Transactional
