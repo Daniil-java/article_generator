@@ -23,7 +23,6 @@ import java.util.Optional;
 public class ArticleTopicService {
     private final ArticleTopicRepository articleTopicRepository;
     private final GenerationRequestService generationRequestService;
-    private final OpenAiApiService openAiApiService;
     private final OpenAiApiFeignService openAiApiFeignService;
     public List<ArticleTopic> getAll() {
         return articleTopicRepository.findAll();
@@ -43,7 +42,6 @@ public class ArticleTopicService {
 
     private List<ArticleTopic> generateTopic(Long requestId) {
         GenerationRequest request = generationRequestService.getRequestById(requestId);
-//        List<ArticleTopicDto> topicList = openAiApiService.generateTopics(request.getRequestTags());
         List<ArticleTopicDto> topicList = openAiApiFeignService.generateTopics(request.getRequestTags());
         List<ArticleTopic> resultList = new ArrayList<>();
         for (ArticleTopicDto articleTopic : topicList) {

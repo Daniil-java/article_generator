@@ -7,9 +7,9 @@ import com.education.articlegenerator.dtos.ErrorResponseException;
 import com.education.articlegenerator.dtos.ArticleDto;
 import com.education.articlegenerator.dtos.ArticleTopicDto;
 import com.education.articlegenerator.dtos.ErrorStatus;
-import com.education.articlegenerator.entities.OpenAiKey;
+import com.education.articlegenerator.entities.OpenAiRequestAttributes;
 import com.education.articlegenerator.configurations.IntegrationServiceProperties;
-import com.education.articlegenerator.repositories.OpenAiApiRepository;
+import com.education.articlegenerator.repositories.OpenAiRequestAttributesRepository;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.json.JsonReadFeature;
 import com.fasterxml.jackson.core.type.TypeReference;
@@ -35,10 +35,11 @@ import java.util.concurrent.TimeUnit;
 @EnableConfigurationProperties(
         {IntegrationServiceProperties.class, OpenAiApiProperties.class}
 )
+@Deprecated
 public class OpenAiApiService {
     private WebClient webClient;
     private final IntegrationServiceProperties isp;
-    private final OpenAiApiRepository openAiApiRepository;
+    private final OpenAiRequestAttributesRepository openAiRequestAttributesRepository;
     private final OpenAiApiProperties openAiApiProperties;
     @Value("${integrations.openai-api.url}")
     private String openAiUrl;
@@ -72,16 +73,16 @@ public class OpenAiApiService {
     }
 
     private OpenAiChatCompletionResponse makeRequest(String keyName, String tags) {
-        OpenAiKey openAiKey = openAiApiRepository.findByName(keyName)
+        OpenAiRequestAttributes openAiRequestAttributes = openAiRequestAttributesRepository.findByName(keyName)
                 .orElseThrow(() -> new ErrorResponseException(ErrorStatus.KEY_DOESNT_EXIST));
 
         OpenAiChatCompletionRequest chatRequest = OpenAiChatCompletionRequest
-                .makeRequest(String.format(openAiKey.getResponseMessage(), tags));
+                .makeRequest(String.format(openAiRequestAttributes.getRequestMessage(), tags));
 
         Mono<OpenAiChatCompletionResponse> response = getWebClient().post()
                 .uri("chat/completions")
                 .contentType(MediaType.APPLICATION_JSON)
-                .header("Authorization", openAiKey.getKey())
+                .header("Authorization", openAiRequestAttributes.getKey())
                 .bodyValue(chatRequest)
                 .retrieve()
                 .bodyToMono(OpenAiChatCompletionResponse.class);

@@ -24,7 +24,6 @@ import java.util.Optional;
 public class ArticleService {
     private final ArticleRepository articleRepository;
     private final ArticleTopicService articleTopicService;
-    private final OpenAiApiService openAiApiService;
     private final OpenAiApiFeignService openAiApiFeignService;
     public List<Article> getAll() {
         return articleRepository.findAll();
@@ -50,7 +49,6 @@ public class ArticleService {
 
     private Article generateArticle(Long id) {
         ArticleTopic articleTopic = articleTopicService.getTopicById(id);
-//        ArticleDto articleDto = openAiApiService.generateArticle(articleTopic.getTopicTitle());
         ArticleDto articleDto = openAiApiFeignService.generateArticle(articleTopic.getTopicTitle());
         articleTopicService.saveArticleTopic(articleTopic.setStatus(Status.GENERATED));
         return articleRepository.save(new Article()
