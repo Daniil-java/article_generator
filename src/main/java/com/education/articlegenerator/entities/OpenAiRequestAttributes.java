@@ -9,11 +9,11 @@ import org.hibernate.annotations.CreationTimestamp;
 import java.time.LocalDateTime;
 
 @Entity
-@Table(name = "open_ai_key")
+@Table(name = "open_ai_request_attributes")
 @Data
 @NoArgsConstructor
 @Accessors(chain = true)
-public class OpenAiKey {
+public class OpenAiRequestAttributes {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id")
@@ -25,8 +25,8 @@ public class OpenAiKey {
     @Column(name = "key")
     private String key;
 
-    @Column(name = "response_message")
-    private String responseMessage;
+    @Column(name = "request_message")
+    private String requestMessage;
 
     @Column(name = "created")
     @CreationTimestamp

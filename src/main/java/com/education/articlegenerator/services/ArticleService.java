@@ -26,7 +26,6 @@ import java.util.Optional;
 public class ArticleService {
     private final ArticleRepository articleRepository;
     private final ArticleTopicService articleTopicService;
-    private final OpenAiApiService openAiApiService;
     private final OpenAiApiFeignService openAiApiFeignService;
     private final RedissonClient redissonClient;
     public List<Article> getAll() {
@@ -61,7 +60,6 @@ public class ArticleService {
             if (articleTopic.getStatus().equals(Status.GENERATED)) {
                 return articleTopic.getArticles().get(0);
             }
-//        ArticleDto articleDto = openAiApiService.generateArticle(articleTopic.getTopicTitle());
             ArticleDto articleDto = openAiApiFeignService.generateArticle(articleTopic.getTopicTitle());
             articleTopicService.saveArticleTopic(articleTopic.setStatus(Status.GENERATED));
             log.info("end generate article");

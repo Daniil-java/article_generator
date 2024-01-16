@@ -5,9 +5,9 @@ import com.education.articlegenerator.dtos.openai.Choice;
 import com.education.articlegenerator.dtos.openai.Message;
 import com.education.articlegenerator.dtos.openai.OpenAiChatCompletionRequest;
 import com.education.articlegenerator.dtos.openai.OpenAiChatCompletionResponse;
-import com.education.articlegenerator.entities.OpenAiKey;
+import com.education.articlegenerator.entities.OpenAiRequestAttributes;
 import com.education.articlegenerator.integration.OpenAiFeignClient;
-import com.education.articlegenerator.repositories.OpenAiApiRepository;
+import com.education.articlegenerator.repositories.OpenAiRequestAttributesRepository;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -30,7 +30,7 @@ public class OpenAiApiFeignServiceTest {
     @MockBean
     private OpenAiFeignClient openAiFeignClient;
     @MockBean
-    private OpenAiApiRepository openAiApiRepository;
+    private OpenAiRequestAttributesRepository openAiRequestAttributesRepository;
 
     private final String TRUE_OPENAI_TOPIC_KEY = "ArticleTopicKey";
     private final String TRUE_OPENAI_ARTICLE_KEY = "ArticleKey";
@@ -58,18 +58,18 @@ public class OpenAiApiFeignServiceTest {
 
     @BeforeEach
     public void setUp() {
-        OpenAiKey openAiKey = new OpenAiKey();
-        Mockito.doReturn(Optional.of(openAiKey)).when(openAiApiRepository).findByName(TRUE_OPENAI_TOPIC_KEY);
-        Mockito.doReturn(Optional.of(openAiKey)).when(openAiApiRepository).findByName(TRUE_OPENAI_ARTICLE_KEY);
+        OpenAiRequestAttributes openAiRequestAttributes = new OpenAiRequestAttributes();
+        Mockito.doReturn(Optional.of(openAiRequestAttributes)).when(openAiRequestAttributesRepository).findByName(TRUE_OPENAI_TOPIC_KEY);
+        Mockito.doReturn(Optional.of(openAiRequestAttributes)).when(openAiRequestAttributesRepository).findByName(TRUE_OPENAI_ARTICLE_KEY);
 
         OpenAiChatCompletionResponse openAiChatCompletionResponse = makeResponse(MESSAGE_TOPIC_CONTENT);
         OpenAiChatCompletionResponse openAiChatCompletionResponseArticle = makeResponse(MESSAGE_ARTICLE_CONTENT);
         OpenAiChatCompletionRequest request = OpenAiChatCompletionRequest.makeRequest(FILTER_TOPIC);
         OpenAiChatCompletionRequest requestArticle = OpenAiChatCompletionRequest.makeRequest(FILTER_ARTICLE);
         Mockito.doReturn(openAiChatCompletionResponse).when(openAiFeignClient)
-                .generate(openAiKey.getKey(), request);
+                .generate(openAiRequestAttributes.getKey(), request);
         Mockito.doReturn(openAiChatCompletionResponseArticle).when(openAiFeignClient)
-                .generate(openAiKey.getKey(), requestArticle);
+                .generate(openAiRequestAttributes.getKey(), requestArticle);
 
     }
 
@@ -81,7 +81,7 @@ public class OpenAiApiFeignServiceTest {
 
     @Test
     public void generateTopicsErrorKeyTest() {
-        Mockito.doReturn(Optional.empty()).when(openAiApiRepository).findByName(TRUE_OPENAI_TOPIC_KEY);
+        Mockito.doReturn(Optional.empty()).when(openAiRequestAttributesRepository).findByName(TRUE_OPENAI_TOPIC_KEY);
         ErrorResponseException exception = assertThrows(ErrorResponseException.class, () -> {
             openAiApiFeignService.generateTopics(TAGS);
         });
@@ -93,11 +93,11 @@ public class OpenAiApiFeignServiceTest {
 
     @Test
     public void generateTopicsErrorNotFoundTest() {
-        OpenAiKey openAiKey = new OpenAiKey();
+        OpenAiRequestAttributes openAiRequestAttributes = new OpenAiRequestAttributes();
         OpenAiChatCompletionResponse openAiChatCompletionResponse = makeResponse("");
         OpenAiChatCompletionRequest request = OpenAiChatCompletionRequest.makeRequest(FILTER_TOPIC);
         Mockito.doReturn(openAiChatCompletionResponse).when(openAiFeignClient)
-                .generate(openAiKey.getKey(), request);
+                .generate(openAiRequestAttributes.getKey(), request);
 
         ErrorResponseException exception = assertThrows(ErrorResponseException.class, () -> {
             openAiApiFeignService.generateTopics(TAGS);
@@ -116,7 +116,7 @@ public class OpenAiApiFeignServiceTest {
 
     @Test
     public void generateArticleErrorKeyTest() {
-        Mockito.doReturn(Optional.empty()).when(openAiApiRepository).findByName(TRUE_OPENAI_ARTICLE_KEY);
+        Mockito.doReturn(Optional.empty()).when(openAiRequestAttributesRepository).findByName(TRUE_OPENAI_ARTICLE_KEY);
         ErrorResponseException exception = assertThrows(ErrorResponseException.class, () -> {
             openAiApiFeignService.generateArticle(TAGS);
         });
@@ -128,11 +128,11 @@ public class OpenAiApiFeignServiceTest {
 
     @Test
     public void generateArticleErrorNotFoundTest() {
-        OpenAiKey openAiKey = new OpenAiKey();
+        OpenAiRequestAttributes openAiRequestAttributes = new OpenAiRequestAttributes();
         OpenAiChatCompletionResponse openAiChatCompletionResponse = makeResponse("");
         OpenAiChatCompletionRequest request = OpenAiChatCompletionRequest.makeRequest(FILTER_ARTICLE);
         Mockito.doReturn(openAiChatCompletionResponse).when(openAiFeignClient)
-                .generate(openAiKey.getKey(), request);
+                .generate(openAiRequestAttributes.getKey(), request);
 
         ErrorResponseException exception = assertThrows(ErrorResponseException.class, () -> {
             openAiApiFeignService.generateArticle(TAGS);
