@@ -1,5 +1,6 @@
 package com.education.articlegenerator.services;
 
+import com.education.articlegenerator.configurations.CacheConfig;
 import com.education.articlegenerator.dtos.ErrorResponseException;
 import com.education.articlegenerator.dtos.ErrorStatus;
 import com.education.articlegenerator.entities.OpenAiRequestAttributes;
@@ -15,8 +16,8 @@ import org.springframework.stereotype.Service;
 public class OpenAiRequestAttributesService {
     private final OpenAiRequestAttributesRepository openAiRequestAttributesRepository;
 
-    @Cacheable(value = "attributes")
-    public OpenAiRequestAttributes getByName(String name) {
+    @Cacheable(value = CacheConfig.AG_OPENAI_REQUEST_ATTRIBUTES_CACHE)
+    public OpenAiRequestAttributes getByNameCachable(String name) {
         return openAiRequestAttributesRepository.findByName(name)
                 .orElseThrow(() -> new ErrorResponseException(ErrorStatus.KEY_DOESNT_EXIST));
     }

@@ -28,7 +28,7 @@ public class OpenAiApiFeignService {
     private final OpenAiRequestAttributesService openAiRequestAttributesService;
 
     public List<ArticleTopicDto> generateTopics(String tags) {
-        OpenAiRequestAttributes openAiRequestAttributes = openAiRequestAttributesService.getByName(openAiApiProperties.getArticleTopicKey());
+        OpenAiRequestAttributes openAiRequestAttributes = openAiRequestAttributesService.getByNameCachable(openAiApiProperties.getArticleTopicKey());
         OpenAiChatCompletionRequest request = OpenAiChatCompletionRequest.makeRequest(
                 String.format(openAiRequestAttributes.getRequestMessage(), tags)
         );
@@ -50,7 +50,7 @@ public class OpenAiApiFeignService {
     }
 
     public ArticleDto generateArticle(String topicTitle) {
-        OpenAiRequestAttributes openAiRequestAttributes = openAiRequestAttributesService.getByName(openAiApiProperties.getArticleKey());
+        OpenAiRequestAttributes openAiRequestAttributes = openAiRequestAttributesService.getByNameCachable(openAiApiProperties.getArticleKey());
         OpenAiChatCompletionRequest request = OpenAiChatCompletionRequest.makeRequest(
                 String.format(openAiRequestAttributes.getRequestMessage(), topicTitle));
         OpenAiChatCompletionResponse response =
