@@ -13,12 +13,14 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.redisson.api.RLock;
 import org.redisson.api.RedissonClient;
+import org.redisson.client.WriteRedisConnectionException;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+
 
 @Service
 @RequiredArgsConstructor
@@ -52,25 +54,30 @@ public class ArticleService {
 
     private Article generateArticle(Long id) {
         log.info("generate article");
-        RLock lock = redissonClient.getFairLock(String.valueOf(id));
-        lock.lock();
+        RLock lock;
         try {
-            log.info("start generate article");
-            ArticleTopic articleTopic = articleTopicService.getTopicById(id);
-            if (articleTopic.getStatus().equals(Status.GENERATED)) {
-                return articleTopic.getArticles().get(0);
+            lock = redissonClient.getFairLock(String.valueOf(id));
+            lock.lock();
+            try {
+                log.info("start generate article");
+                ArticleTopic articleTopic = articleTopicService.getTopicById(id);
+                if (articleTopic.getStatus().equals(Status.GENERATED)) {
+                    return articleTopic.getArticles().get(0);
+                }
+                ArticleDto articleDto = openAiApiFeignService.generateArticle(articleTopic.getTopicTitle());
+                articleTopicService.saveArticleTopic(articleTopic.setStatus(Status.GENERATED));
+                log.info("end generate article");
+                return articleRepository.save(new Article()
+                        .setArticleBody(articleDto.getArticleBody())
+                        .setArticleTopic(articleTopic)
+                );
+            } finally {
+                lock.unlock();
             }
-            ArticleDto articleDto = openAiApiFeignService.generateArticle(articleTopic.getTopicTitle());
-            articleTopicService.saveArticleTopic(articleTopic.setStatus(Status.GENERATED));
-            log.info("end generate article");
-            return articleRepository.save(new Article()
-                    .setArticleBody(articleDto.getArticleBody())
-                    .setArticleTopic(articleTopic)
-            );
-        } finally {
-            lock.unlock();
+        } catch (WriteRedisConnectionException ex) {
+            log.error("Redisson Error! Check that the Redis server is running!",ex);
+            return null;
         }
-
     }
 
     @Transactional

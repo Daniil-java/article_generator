@@ -12,6 +12,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.redisson.api.RLock;
 import org.redisson.api.RedissonClient;
+import org.redisson.client.WriteRedisConnectionException;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
@@ -45,28 +46,34 @@ public class ArticleTopicService {
 
     private List<ArticleTopic> generateTopic(Long requestId) {
         log.info("generate topic article");
-        RLock lock = redissonClient.getFairLock(String.valueOf(requestId));
-        lock.lock();
+        RLock lock;
         try {
-            log.info("start generate topic article");
-            GenerationRequest request = generationRequestService.getRequestById(requestId);
-            if (request.getStatus().equals(Status.GENERATED)) {
-                return request.getArticleTopics();
+            lock = redissonClient.getFairLock(String.valueOf(requestId));
+            lock.lock();
+            try {
+                log.info("start generate topic article");
+                GenerationRequest request = generationRequestService.getRequestById(requestId);
+                if (request.getStatus().equals(Status.GENERATED)) {
+                    return request.getArticleTopics();
+                }
+                List<ArticleTopicDto> topicList = openAiApiFeignService.generateTopics(request.getRequestTags());
+                List<ArticleTopic> resultList = new ArrayList<>();
+                for (ArticleTopicDto articleTopic : topicList) {
+                    resultList.add(articleTopicRepository.save(new ArticleTopic()
+                            .setTopicTitle(articleTopic.getTopicTitle())
+                            .setGenerationRequest(request)
+                            .setStatus(Status.CREATED))
+                    );
+                    request.setStatus(Status.GENERATED);
+                    generationRequestService.saveRequest(request);
+                }
+                return resultList;
+            } finally {
+                lock.unlock();
             }
-            List<ArticleTopicDto> topicList = openAiApiFeignService.generateTopics(request.getRequestTags());
-            List<ArticleTopic> resultList = new ArrayList<>();
-            for (ArticleTopicDto articleTopic : topicList) {
-                resultList.add(articleTopicRepository.save(new ArticleTopic()
-                        .setTopicTitle(articleTopic.getTopicTitle())
-                        .setGenerationRequest(request)
-                        .setStatus(Status.CREATED))
-                );
-                request.setStatus(Status.GENERATED);
-                generationRequestService.saveRequest(request);
-            }
-            return resultList;
-        } finally {
-            lock.unlock();
+        } catch (WriteRedisConnectionException ex) {
+            log.error("Redisson Error! Check that the Redis server is running!",ex);
+            return null;
         }
     }
 
