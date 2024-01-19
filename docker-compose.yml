@@ -17,3 +17,12 @@ services:
       interval: 5s
       timeout: 1s
       retries: 2
+
+  cache:
+    image: redis:7.2.4-alpine
+    restart: always
+    ports:
+      - '6379:6379'
+    command: redis-server
+
+
