@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.*;
 import jakarta.persistence.*;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import lombok.ToString;
 import lombok.experimental.Accessors;
 import org.hibernate.annotations.CreationTimestamp;
 
@@ -13,6 +14,7 @@ import java.util.List;
 @Entity
 @Table(name = "article_topics")
 @Data
+@ToString(exclude = "generationRequest")
 @NoArgsConstructor
 
 @JsonIdentityInfo(

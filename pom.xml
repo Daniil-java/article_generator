@@ -10,7 +10,7 @@
 	</parent>
 	<groupId>com.education</groupId>
 	<artifactId>article_generator</artifactId>
-	<version>0.0.15</version>
+	<version>0.0.16</version>
 	<name>article_generator</name>
 	<description>Generator for writing articles</description>
 	<properties>
