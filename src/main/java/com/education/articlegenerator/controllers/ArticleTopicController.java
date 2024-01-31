@@ -12,28 +12,12 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
-
 @RestController
 @RequestMapping("/api/v1/articletopic")
 @RequiredArgsConstructor
 @Tag(name = "Заголовки статей", description = "Методы работы с заголовками")
 public class ArticleTopicController {
     private final ArticleTopicService articleTopicService;
-
-    @Operation(
-            summary = "Запрос на получение всех заголовков",
-            responses = {
-                    @ApiResponse(
-                            description = "Успешный ответ",
-                            content = @Content(array = @ArraySchema(schema = @Schema(implementation = ArticleTopic.class)))
-                    )
-            }
-    )
-    @GetMapping("/all")
-    public List<ArticleTopic> getAll() {
-        return articleTopicService.getAll();
-    }
 
     @Operation(
             summary = "Запрос на получение всех заголовков по Id запроса",
@@ -49,7 +33,7 @@ public class ArticleTopicController {
             }
     )
     @GetMapping
-    public List<ArticleTopic> getTopics(@RequestParam Long requestId) {
-        return articleTopicService.getTopicsByRequestId(requestId);
+    public ArticleTopic getTopic(@RequestParam Long topicId) {
+        return articleTopicService.getTopicById(topicId);
     }
 }

@@ -7,7 +7,8 @@ import lombok.Getter;
 @AllArgsConstructor
 public enum Status {
     CREATED(0),
-    GENERATED(1);
+    GENERATED(1),
+    ERROR(2);
 
     private int code;
 

@@ -22,3 +22,7 @@ Json-body:
   ```http://localhost:8110/api/v1/articletopic?requestId={Id of your generation request}```.
 * Article creating/getting. To create or get a article, you must make a get request at:  
   ```http://localhost:8110/api/v1/article?topicIds={Id of your topic}```.
+### Swagger
+You can use SWAGGER in URL:
+```http://localhost:8110/swagger-ui/index.html```
+

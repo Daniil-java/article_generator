@@ -1,12 +1,10 @@
 package com.education.articlegenerator.services;
 
 import com.education.articlegenerator.configurations.OpenAiApiProperties;
-import com.education.articlegenerator.dtos.ErrorResponseException;
 import com.education.articlegenerator.dtos.openai.OpenAiChatCompletionRequest;
 import com.education.articlegenerator.dtos.openai.OpenAiChatCompletionResponse;
 import com.education.articlegenerator.dtos.ArticleDto;
 import com.education.articlegenerator.dtos.ArticleTopicDto;
-import com.education.articlegenerator.dtos.ErrorStatus;
 import com.education.articlegenerator.entities.OpenAiRequestAttributes;
 import com.education.articlegenerator.integration.OpenAiFeignClient;
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -27,8 +25,8 @@ public class OpenAiApiFeignService {
     private final OpenAiApiProperties openAiApiProperties;
     private final OpenAiRequestAttributesService openAiRequestAttributesService;
 
-    public List<ArticleTopicDto> generateTopics(String tags) {
-        OpenAiRequestAttributes openAiRequestAttributes = openAiRequestAttributesService.getByNameCachable(openAiApiProperties.getArticleTopicKey());
+    public List<ArticleTopicDto> generateTopics(String tags) throws JsonProcessingException {
+        OpenAiRequestAttributes openAiRequestAttributes = openAiRequestAttributesService.getByNameCachable(openAiApiProperties.getArticleTopicKeyName());
         OpenAiChatCompletionRequest request = OpenAiChatCompletionRequest.makeRequest(
                 String.format(openAiRequestAttributes.getRequestMessage(), tags)
         );
@@ -37,20 +35,14 @@ public class OpenAiApiFeignService {
                         openAiRequestAttributes.getKey(), request);
 
         ObjectMapper objectMapper = new ObjectMapper();
-        List<ArticleTopicDto> result = null;
-        try {
-            result = objectMapper.readValue(
-                    response.getChoices().get(0).getMessage().getContent(),
-                    new TypeReference<List<ArticleTopicDto>>()
-                    {});
-        } catch (JsonProcessingException e) {
-            throw new ErrorResponseException(ErrorStatus.OPENAI_INCORRECT_ANSWER, e);
-        }
-        return result;
+        return objectMapper.readValue(
+                response.getChoices().get(0).getMessage().getContent(),
+                new TypeReference<List<ArticleTopicDto>>()
+                {});
     }
 
-    public ArticleDto generateArticle(String topicTitle) {
-        OpenAiRequestAttributes openAiRequestAttributes = openAiRequestAttributesService.getByNameCachable(openAiApiProperties.getArticleKey());
+    public ArticleDto generateArticle(String topicTitle) throws JsonProcessingException {
+        OpenAiRequestAttributes openAiRequestAttributes = openAiRequestAttributesService.getByNameCachable(openAiApiProperties.getArticleKeyName());
         OpenAiChatCompletionRequest request = OpenAiChatCompletionRequest.makeRequest(
                 String.format(openAiRequestAttributes.getRequestMessage(), topicTitle));
         OpenAiChatCompletionResponse response =
@@ -60,15 +52,8 @@ public class OpenAiApiFeignService {
         ObjectMapper objectMapper = JsonMapper.builder()
                 .enable(JsonReadFeature.ALLOW_UNESCAPED_CONTROL_CHARS)
                 .build();
-        ArticleDto result = null;
-        try {
-            result = objectMapper.readerFor(ArticleDto.class).readValue(
-                    response.getChoices().get(0).getMessage().getContent());
-        } catch (JsonProcessingException e) {
-            throw new ErrorResponseException(ErrorStatus.OPENAI_INCORRECT_ANSWER, e);
-        }
-        return result;
+        return objectMapper.readerFor(ArticleDto.class).readValue(
+                response.getChoices().get(0).getMessage().getContent());
     }
-
 
 }

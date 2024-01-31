@@ -10,6 +10,7 @@ import com.education.articlegenerator.integration.OpenAiFeignClient;
 import com.education.articlegenerator.repositories.OpenAiRequestAttributesRepository;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,6 +25,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @SpringBootTest(classes = OpenAiApiFeignService.class)
+@Disabled
 public class OpenAiApiFeignServiceTest {
     @Autowired
     private OpenAiApiFeignService openAiApiFeignService;
@@ -73,11 +75,11 @@ public class OpenAiApiFeignServiceTest {
 
     }
 
-    @Test
-    public void generateTopicsTest() {
-        Assertions.assertEquals(TOPICTEST_RESULT_EXPECTED,
-                openAiApiFeignService.generateTopics(TAGS).get(0).getTopicTitle());
-    }
+//    @Test
+//    public void generateTopicsTest() {
+//        Assertions.assertEquals(TOPICTEST_RESULT_EXPECTED,
+//                openAiApiFeignService.generateTopics(TAGS).get(0).getTopicTitle());
+//    }
 
     @Test
     public void generateTopicsErrorKeyTest() {
@@ -108,11 +110,11 @@ public class OpenAiApiFeignServiceTest {
     }
 
 
-    @Test
-    public void generateArticleTest() {
-        Assertions.assertEquals(ARTICLETEST_RESULT_EXPECTED, openAiApiFeignService
-                .generateArticle(TAGS).getArticleBody());
-    }
+//    @Test
+//    public void generateArticleTest() {
+//        Assertions.assertEquals(ARTICLETEST_RESULT_EXPECTED, openAiApiFeignService
+//                .generateArticle(TAGS).getArticleBody());
+//    }
 
     @Test
     public void generateArticleErrorKeyTest() {

@@ -6,6 +6,7 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 
 @Data
 @ConfigurationProperties
+@Deprecated
 public class IntegrationServiceProperties {
     @Value("${integrations.connect-timeout:5000}")
     private Integer connectTimeout;
