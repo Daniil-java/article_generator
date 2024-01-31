@@ -10,9 +10,11 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.redisson.api.RLock;
+import org.redisson.api.RMap;
 import org.redisson.api.RedissonClient;
 import org.redisson.client.WriteRedisConnectionException;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
@@ -27,26 +29,24 @@ public class ArticleService {
                 .orElseThrow(() -> new ErrorResponseException(ErrorStatus.ARTICLE_NOT_FOUND));
     }
 
+    @Transactional
     public void generateArticleByTopic(ArticleTopic articleTopic) throws JsonProcessingException {
         log.info("Article generating");
-        RLock lock;
+        RMap<Long, ArticleTopic> map = redissonClient.getMap("articlesGenerating");
+        RLock lock = map.getFairLock(articleTopic.getId());
         try {
-            lock = redissonClient.getFairLock(String.valueOf(articleTopic));
-            lock.lock();
-            try {
-                if (!articleRepository.findArticleByArticleTopicId(articleTopic.getId()).isEmpty()) {
-                    return;
-                }
-                ArticleDto articleDto = openAiApiFeignService.generateArticle(articleTopic.getTopicTitle());
-                articleRepository.save(new Article()
-                        .setArticleBody(articleDto.getArticleBody())
-                        .setArticleTopic(articleTopic)
-                );
-            } finally {
-                lock.unlock();
+            if (!articleRepository.findArticleByArticleTopicId(articleTopic.getId()).isEmpty()) {
+                return;
             }
+            ArticleDto articleDto = openAiApiFeignService.generateArticle(articleTopic.getTopicTitle());
+            articleRepository.save(new Article()
+                    .setArticleBody(articleDto.getArticleBody())
+                    .setArticleTopic(articleTopic)
+            );
         } catch (WriteRedisConnectionException ex) {
             log.error("Redisson Error! Check that the Redis server is running!",ex);
+        } finally {
+            lock.unlock();
         }
     }
 }

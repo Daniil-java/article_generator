@@ -44,4 +44,7 @@ public class ArticleTopic {
     @Column(name = "status")
     @Enumerated(EnumType.ORDINAL)
     private Status status;
+
+    @Column(name = "error_cause")
+    private String errorCause;
 }

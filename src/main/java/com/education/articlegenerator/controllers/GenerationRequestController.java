@@ -33,7 +33,7 @@ public class GenerationRequestController {
                     )
             }
     )
-    @PostMapping("/")
+    @PostMapping
     public GenerationRequest createRequest(@RequestBody GenerationRequestDto request) {
         return generationRequestService.createRequest(request);
     }

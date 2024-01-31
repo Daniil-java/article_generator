@@ -26,7 +26,7 @@ public class OpenAiApiFeignService {
     private final OpenAiRequestAttributesService openAiRequestAttributesService;
 
     public List<ArticleTopicDto> generateTopics(String tags) throws JsonProcessingException {
-        OpenAiRequestAttributes openAiRequestAttributes = openAiRequestAttributesService.getByNameCachable(openAiApiProperties.getArticleTopicKey());
+        OpenAiRequestAttributes openAiRequestAttributes = openAiRequestAttributesService.getByNameCachable(openAiApiProperties.getArticleTopicKeyName());
         OpenAiChatCompletionRequest request = OpenAiChatCompletionRequest.makeRequest(
                 String.format(openAiRequestAttributes.getRequestMessage(), tags)
         );
@@ -35,16 +35,14 @@ public class OpenAiApiFeignService {
                         openAiRequestAttributes.getKey(), request);
 
         ObjectMapper objectMapper = new ObjectMapper();
-        List<ArticleTopicDto> result = objectMapper.readValue(
+        return objectMapper.readValue(
                 response.getChoices().get(0).getMessage().getContent(),
                 new TypeReference<List<ArticleTopicDto>>()
                 {});
-
-        return result;
     }
 
     public ArticleDto generateArticle(String topicTitle) throws JsonProcessingException {
-        OpenAiRequestAttributes openAiRequestAttributes = openAiRequestAttributesService.getByNameCachable(openAiApiProperties.getArticleKey());
+        OpenAiRequestAttributes openAiRequestAttributes = openAiRequestAttributesService.getByNameCachable(openAiApiProperties.getArticleKeyName());
         OpenAiChatCompletionRequest request = OpenAiChatCompletionRequest.makeRequest(
                 String.format(openAiRequestAttributes.getRequestMessage(), topicTitle));
         OpenAiChatCompletionResponse response =
@@ -54,9 +52,8 @@ public class OpenAiApiFeignService {
         ObjectMapper objectMapper = JsonMapper.builder()
                 .enable(JsonReadFeature.ALLOW_UNESCAPED_CONTROL_CHARS)
                 .build();
-        ArticleDto result = objectMapper.readerFor(ArticleDto.class).readValue(
+        return objectMapper.readerFor(ArticleDto.class).readValue(
                 response.getChoices().get(0).getMessage().getContent());
-        return result;
     }
 
 }

@@ -39,4 +39,6 @@ public class GenerationRequest {
     @Enumerated(EnumType.ORDINAL)
     private Status status;
 
+    @Column(name = "error_cause")
+    private String errorCause;
 }

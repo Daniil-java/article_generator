@@ -32,6 +32,7 @@ public class ArticleController {
                     )
             }
     )
+    @GetMapping()
     public Article getArticle(@RequestParam Long topicId) {
         return articleService.getArticleByTopicId(topicId);
     }

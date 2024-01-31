@@ -9,8 +9,8 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 @ConfigurationProperties
 public class OpenAiApiProperties {
     @Value("${integrations.openai-api.article-key:ArticleKey}")
-    private final String articleKey;
+    private final String articleKeyName;
     @Value("${integrations.openai-api.articletopic-key:ArticleTopicKey}")
-    private final String articleTopicKey;
+    private final String articleTopicKeyName;
 
 }
